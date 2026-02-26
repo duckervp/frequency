@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { eq, and } from 'drizzle-orm';
-import { db } from '../lib/db';
-import { actions } from '../db/schema';
-import { authMiddleware } from '../middleware/auth';
-import { genId } from '../lib/id';
+import { db } from '../lib/db.js';
+import { actions } from '../db/schema.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { genId } from '../lib/id.js';
 
 export const actionRoutes = new Hono();
 

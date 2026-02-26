@@ -2,9 +2,9 @@ import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { authRoutes } from './routes/auth';
-import { actionRoutes } from './routes/actions';
-import { logRoutes } from './routes/logs';
+import { authRoutes } from './routes/auth.js';
+import { actionRoutes } from './routes/actions.js';
+import { logRoutes } from './routes/logs.js';
 
 export const runtime = 'edge';
 

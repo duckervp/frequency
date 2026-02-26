@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
-import { db } from '../lib/db';
-import { users } from '../db/schema';
-import { signToken } from '../lib/jwt';
-import { genId } from '../lib/id';
+import { db } from '../lib/db.js';
+import { users } from '../db/schema.js';
+import { signToken } from '../lib/jwt.js';
+import { genId } from '../lib/id.js';
 
 export const authRoutes = new Hono();
 

@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
-import { db } from '../lib/db';
-import { actionLogs, actions } from '../db/schema';
-import { authMiddleware } from '../middleware/auth';
-import { genId } from '../lib/id';
+import { db } from '../lib/db.js';
+import { actionLogs, actions } from '../db/schema.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { genId } from '../lib/id.js';
 
 export const logRoutes = new Hono();
 
