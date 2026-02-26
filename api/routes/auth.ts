@@ -69,7 +69,7 @@ authRoutes.post('/login', async (c) => {
     }
 
     console.log(`[AUTH] Validating password...`);
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid = bcrypt.compareSync(password, user.passwordHash);
     console.log(`[AUTH] Password valid: ${valid}`);
     if (!valid) {
         return c.json({ error: 'Invalid credentials' }, 401);
