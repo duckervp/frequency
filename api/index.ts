@@ -27,4 +27,5 @@ app.route('/logs', logRoutes);
 
 app.get('/health', (c) => c.json({ ok: true }));
 
+export { app };
 export default handle(app);
