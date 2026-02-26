@@ -14,9 +14,9 @@ app.use('*', logger());
 app.use(
     '*',
     cors({
-        origin: process.env.APP_URL ?? 'http://localhost:5173',
+        origin: (origin) => origin, // Echo origin to allow dynamic Vercel previews/same-site
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowHeaders: ['Content-Type', 'Authorization'],
+        allowHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
         credentials: true,
     })
 );

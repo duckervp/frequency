@@ -39,20 +39,32 @@ async function apiFetch<T>(
     options: RequestInit = {}
 ): Promise<T> {
     const token = localStorage.getItem('freq_token');
+    const url = `${BASE}${path}`;
+
+    console.log(`[API] Fetching ${url}...`);
+
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...(options.headers as Record<string, string>),
     };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${BASE}${path}`, { ...options, headers });
+    try {
+        const res = await fetch(url, { ...options, headers });
+        console.log(`[API] Response from ${url}: ${res.status}`);
 
-    if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new ApiError(res.status, (body as { error?: string }).error ?? res.statusText);
+        if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            const msg = (body as { error?: string }).error ?? res.statusText;
+            console.error(`[API] Error from ${url}: ${res.status} - ${msg}`);
+            throw new ApiError(res.status, msg);
+        }
+
+        return res.json() as Promise<T>;
+    } catch (err) {
+        console.error(`[API] Fatal error fetching ${url}:`, err);
+        throw err;
     }
-
-    return res.json() as Promise<T>;
 }
 
 export class ApiError extends Error {
