@@ -6,12 +6,11 @@ import { authRoutes } from './routes/auth.js';
 import { actionRoutes } from './routes/actions.js';
 import { logRoutes } from './routes/logs.js';
 import { users } from './db/schema.js';
-import { sql } from 'drizzle-orm';
 import { db } from './lib/db.js';
 
 export const runtime = 'edge';
 
-const app = new Hono().basePath('/api');
+const app = new Hono();
 
 app.use('*', async (c, next) => {
     console.log(`[BACKEND] ${c.req.method} ${c.req.url}`);
