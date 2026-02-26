@@ -9,32 +9,33 @@
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
   --radius-full: 9999px;
-  --container-3xs: 16rem;
-  /* 256px */
-  --container-2xs: 18rem;
-  /* 288px */
-  --container-xs: 20rem;
-  /* 320px */
-  --container-sm: 24rem;
-  /* 384px */
-  --container-md: 28rem;
-  /* 448px */
-  --container-lg: 32rem;
-  /* 512px */
-  --container-xl: 36rem;
-  /* 576px */
-  --container-2xl: 42rem;
-  /* 672px */
-  --container-3xl: 48rem;
-  /* 768px */
-  --container-4xl: 56rem;
-  /* 896px */
-  --container-5xl: 64rem;
-  /* 1024px */
-  --container-6xl: 72rem;
-  /* 1152px */
-  --container-7xl: 80rem;
-  /* 1280px */
+
+  /* Custom Animations */
+  --animate-skeleton: skeleton-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes skeleton-pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 @layer base {
@@ -49,39 +50,11 @@
     display: none;
   }
 
-  .animate-skeleton {
-    animation: skeleton-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes skeleton-pulse {
-
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.5;
-    }
-  }
-
   .skeleton {
     @apply animate-skeleton bg-slate-200 dark:bg-slate-800 rounded;
   }
 
   .animate-fade-in {
     animation: fade-in 0.4s ease-out forwards;
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
   }
 }
