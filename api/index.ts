@@ -10,7 +10,7 @@ import { db } from './lib/db.js';
 
 export const runtime = 'edge';
 
-const app = new Hono();
+const app = new Hono().basePath('/api');
 
 app.use('*', async (c, next) => {
     console.log(`[BACKEND] ${c.req.method} ${c.req.url}`);
