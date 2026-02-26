@@ -6,9 +6,12 @@ import { authRoutes } from './routes/auth.js';
 import { actionRoutes } from './routes/actions.js';
 import { logRoutes } from './routes/logs.js';
 
-export const runtime = 'edge';
-
 const app = new Hono().basePath('/api');
+
+app.use('*', async (c, next) => {
+    console.log(`[BACKEND] ${c.req.method} ${c.req.url}`);
+    await next();
+});
 
 app.use('*', logger());
 app.use(

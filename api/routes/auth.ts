@@ -55,17 +55,22 @@ authRoutes.post('/login', async (c) => {
         return c.json({ error: 'Email and password are required' }, 400);
     }
 
+    console.log(`[AUTH] Checking user: ${email}`);
     const user = await db
         .select()
         .from(users)
         .where(eq(users.email, email.toLowerCase()))
         .get();
 
+    console.log(`[AUTH] DB result for ${email}: ${!!user}`);
+
     if (!user || !user.passwordHash) {
         return c.json({ error: 'Invalid credentials' }, 401);
     }
 
+    console.log(`[AUTH] Validating password...`);
     const valid = await bcrypt.compare(password, user.passwordHash);
+    console.log(`[AUTH] Password valid: ${valid}`);
     if (!valid) {
         return c.json({ error: 'Invalid credentials' }, 401);
     }
