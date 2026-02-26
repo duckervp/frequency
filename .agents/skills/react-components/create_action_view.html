@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create New Action</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bee79",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex justify-center">
+<div class="relative flex h-full min-h-screen w-full max-w-[430px] flex-col bg-background-light dark:bg-background-dark overflow-x-hidden shadow-2xl">
+<!-- Top Navigation Bar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 ios-blur p-4 pb-3 justify-between border-b border-slate-200 dark:border-slate-800">
+<div class="text-slate-900 dark:text-slate-100 flex size-10 shrink-0 items-center justify-start cursor-pointer">
+<span class="material-symbols-outlined text-[28px]">close</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-semibold leading-tight tracking-tight flex-1 text-center">New Action</h2>
+<div class="flex size-10 items-center justify-end">
+<p class="text-primary text-base font-semibold leading-normal cursor-pointer">Done</p>
+</div>
+</div>
+<!-- Form Content -->
+<div class="flex flex-col gap-6 px-4 py-6 pb-32">
+<!-- Action Name Section -->
+<section class="flex flex-col gap-3">
+<h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1">Action Name</h3>
+<div class="flex flex-wrap items-end gap-4">
+<label class="flex flex-col w-full">
+<input class="form-input flex w-full rounded-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border-none bg-slate-100 dark:bg-slate-800/50 h-14 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-4 text-lg font-medium leading-normal" placeholder="e.g., Read Book" type="text" value=""/>
+</label>
+</div>
+</section>
+<!-- Icon Selector Section -->
+<section class="flex flex-col gap-3">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Select Icon</h3>
+<span class="text-primary text-xs font-semibold">View All</span>
+</div>
+<div class="grid grid-cols-4 gap-3">
+<div class="flex flex-col aspect-square gap-2 rounded-xl border-2 border-primary bg-primary/10 p-4 items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined text-primary text-[32px]">book</span>
+</div>
+<div class="flex flex-col aspect-square gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-4 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-[32px]">directions_run</span>
+</div>
+<div class="flex flex-col aspect-square gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-4 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-[32px]">self_improvement</span>
+</div>
+<div class="flex flex-col aspect-square gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-4 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-[32px]">code</span>
+</div>
+<div class="flex flex-col aspect-square gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-4 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-[32px]">bedtime</span>
+</div>
+<div class="flex flex-col aspect-square gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-4 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-[32px]">water_drop</span>
+</div>
+<div class="flex flex-col aspect-square gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-4 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-[32px]">restaurant</span>
+</div>
+<div class="flex flex-col aspect-square gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/50 p-4 items-center justify-center cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-[32px]">fitness_center</span>
+</div>
+</div>
+</section>
+<!-- Color Category Section -->
+<section class="flex flex-col gap-3">
+<h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1">Category Color</h3>
+<div class="flex items-center justify-between bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-800">
+<div class="flex gap-3">
+<div class="size-8 rounded-full bg-primary ring-4 ring-primary/20 cursor-pointer"></div>
+<div class="size-8 rounded-full bg-blue-400 cursor-pointer"></div>
+<div class="size-8 rounded-full bg-purple-400 cursor-pointer"></div>
+<div class="size-8 rounded-full bg-orange-400 cursor-pointer"></div>
+<div class="size-8 rounded-full bg-pink-400 cursor-pointer"></div>
+<div class="size-8 rounded-full bg-yellow-400 cursor-pointer"></div>
+</div>
+<span class="material-symbols-outlined text-slate-400">palette</span>
+</div>
+</section>
+<!-- Options List Section -->
+<section class="flex flex-col gap-2">
+<h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1">Reminders</h3>
+<div class="flex flex-col bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-200 dark:divide-slate-700/50">
+<div class="flex items-center justify-between p-4 cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-500">notifications</span>
+<span class="text-base font-medium">Daily Notification</span>
+</div>
+<div class="w-12 h-7 bg-primary rounded-full relative">
+<div class="absolute right-1 top-1 size-5 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-500">schedule</span>
+<span class="text-base font-medium">Set Time</span>
+</div>
+<span class="text-slate-500 dark:text-slate-400 text-base">08:00 AM</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Floating Create Button -->
+<div class="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light dark:via-background-dark to-transparent max-w-[430px] mx-auto">
+<button class="w-full bg-primary hover:bg-primary/90 text-slate-900 font-bold py-4 rounded-2xl text-lg shadow-lg shadow-primary/20 transition-all active:scale-[0.98]">
+                Create Action
+            </button>
+</div>
+</div>
+</body></html>

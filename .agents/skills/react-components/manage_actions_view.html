@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manage My Actions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bee79",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .safe-area-bottom {
+            padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10 px-4 py-4 flex items-center gap-4">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">arrow_back_ios_new</span>
+</button>
+<h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Manage Actions</h1>
+<div class="ml-auto">
+<button class="bg-primary text-background-dark p-2 rounded-full flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+<section>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 group-focus-within:text-primary transition-colors text-[20px]">search</span>
+</div>
+<input class="w-full bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/10 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-primary/50 focus:border-transparent outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="Search your actions..." type="text"/>
+</div>
+</section>
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Active Habits</h2>
+<span class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">3 Total</span>
+</div>
+<div class="space-y-3">
+<div class="bg-white dark:bg-primary/5 border border-slate-100 dark:border-primary/10 rounded-xl p-4 flex items-center gap-4 shadow-sm">
+<div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg">
+<span class="material-symbols-outlined text-primary">medication</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-semibold text-base truncate">Take Medicine</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Daily • 08:00 AM</p>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[22px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-[22px]">delete</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-primary/5 border border-slate-100 dark:border-primary/10 rounded-xl p-4 flex items-center gap-4 shadow-sm">
+<div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg">
+<span class="material-symbols-outlined text-primary">menu_book</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-semibold text-base truncate">Homework</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Weekdays • 04:00 PM</p>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[22px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-[22px]">delete</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-primary/5 border border-slate-100 dark:border-primary/10 rounded-xl p-4 flex items-center gap-4 shadow-sm">
+<div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg">
+<span class="material-symbols-outlined text-primary">water_drop</span>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-semibold text-base truncate">Drink Water</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Every 2 hours • 8 times</p>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[22px]">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-[22px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-4 pt-4 opacity-60">
+<h2 class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Paused</h2>
+<div class="bg-white dark:bg-primary/5 border border-dashed border-slate-200 dark:border-primary/20 rounded-xl p-4 flex items-center gap-4">
+<div class="bg-slate-100 dark:bg-primary/10 p-3 rounded-lg">
+<span class="material-symbols-outlined text-slate-400">exercise</span>
+</div>
+<div class="flex-1">
+<h3 class="font-semibold text-base text-slate-500">Morning Run</h3>
+<p class="text-xs text-slate-400">Paused 2 days ago</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-400">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<nav class="sticky bottom-0 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-primary/10 flex justify-around items-center safe-area-bottom pt-3">
+<a class="flex flex-col items-center gap-1 w-full" href="#">
+<span class="material-symbols-outlined text-primary active-icon">list_alt</span>
+<span class="text-[10px] font-medium text-primary">Log</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">calendar_today</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary">Calendar</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-full group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">settings</span>
+<span class="text-[10px] font-medium text-slate-400 group-hover:text-primary">Settings</span>
+</a>
+</nav>
+
+</body></html>
