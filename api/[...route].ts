@@ -8,7 +8,7 @@ import { logRoutes } from './routes/logs.js';
 import { users } from './db/schema.js';
 import { db } from './lib/db.js';
 
-export const runtime = 'edge';
+
 
 const app = new Hono().basePath('/api');
 
