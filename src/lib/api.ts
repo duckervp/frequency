@@ -41,8 +41,6 @@ async function apiFetch<T>(
     const token = localStorage.getItem('freq_token');
     const url = `${BASE}${path}`;
 
-    console.log(`[API] Fetching ${url}...`);
-
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         ...(options.headers as Record<string, string>),
@@ -51,7 +49,6 @@ async function apiFetch<T>(
 
     try {
         const res = await fetch(url, { ...options, headers });
-        console.log(`[API] Response from ${url}: ${res.status}`);
 
         if (!res.ok) {
             const body = await res.json().catch(() => ({}));
