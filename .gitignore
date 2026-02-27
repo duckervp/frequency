@@ -67,3 +67,6 @@ dist-ssr/
 # debug and build logs
 build*.log
 *.txt
+
+.vercel
+.env*.local
