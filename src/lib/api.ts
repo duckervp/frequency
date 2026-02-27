@@ -88,9 +88,14 @@ export const authApi = {
             body: JSON.stringify({ email, password }),
         }),
 
+    getMe: () =>
+        apiFetch<{ user: ApiUser }>('/auth/me'),
+
     /** Redirect browser to Google OAuth — no fetch needed */
     loginWithGoogle: () => {
-        window.location.href = '/api/auth/google';
+        const url = `${BASE}/auth/google`;
+        console.log(`[AUTH] Redirecting to Google Login: ${url}`);
+        window.location.href = url;
     },
 };
 

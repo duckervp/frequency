@@ -30,28 +30,18 @@ const USER_KEY = 'freq_user';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const navigate = useNavigate();
-    const [token, setToken] = useState<string | null>(() =>
-        localStorage.getItem(TOKEN_KEY)
-    );
+    const [token, setToken] = useState<string | null>(() => {
+        const hash = window.location.hash;
+        if (hash.startsWith('#token=')) {
+            return hash.slice(7);
+        }
+        return localStorage.getItem(TOKEN_KEY);
+    });
     const [user, setUser] = useState<ApiUser | null>(() => {
         const stored = localStorage.getItem(USER_KEY);
         return stored ? (JSON.parse(stored) as ApiUser) : null;
     });
     const [isLoading, setIsLoading] = useState(false);
-
-    // On mount: check URL hash for Google OAuth token redirect
-    useEffect(() => {
-        const hash = window.location.hash;
-        if (hash.startsWith('#token=')) {
-            const t = hash.slice(7);
-            // Clear hash from URL silently
-            window.history.replaceState(null, '', window.location.pathname);
-            // We don't have user details from hash; a quick /auth/me would be ideal,
-            // but for now store token and let pages refetch as needed.
-            localStorage.setItem(TOKEN_KEY, t);
-            setToken(t);
-        }
-    }, []);
 
     const persist = useCallback((t: string, u: ApiUser) => {
         localStorage.setItem(TOKEN_KEY, t);
@@ -59,6 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(t);
         setUser(u);
     }, []);
+
+    const logout = useCallback(() => {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        setToken(null);
+        setUser(null);
+        navigate('/login');
+    }, [navigate]);
 
     const login = useCallback(
         async (email: string, password: string) => {
@@ -92,13 +90,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authApi.loginWithGoogle();
     }, []);
 
-    const logout = useCallback(() => {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
-        setToken(null);
-        setUser(null);
-        navigate('/login');
-    }, [navigate]);
+    // On mount: check URL hash for Google OAuth token redirect
+    useEffect(() => {
+        const hash = window.location.hash;
+        let activeToken = token;
+
+        if (hash.startsWith('#token=')) {
+            const t = hash.slice(7);
+            // Clear hash from URL silently
+            window.history.replaceState(null, '', window.location.pathname);
+            localStorage.setItem(TOKEN_KEY, t);
+            setToken(t);
+            activeToken = t;
+        }
+
+        // If we have a token but no user, fetch user details
+        if (activeToken && !user) {
+            setIsLoading(true);
+            authApi.getMe()
+                .then(data => {
+                    setUser(data.user);
+                    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+                })
+                .catch(err => {
+                    console.error('[AUTH] Failed to fetch user profile:', err);
+                    logout();
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
+    }, [token, user, logout]);
 
     return (
         <AuthContext.Provider
