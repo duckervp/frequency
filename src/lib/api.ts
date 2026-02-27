@@ -32,7 +32,7 @@ export interface ApiLog {
 
 // ─── Base fetch wrapper ───────────────────────────────────────────────────────
 
-const BASE = '/api';
+const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api';
 
 async function apiFetch<T>(
     path: string,
