@@ -48,3 +48,9 @@ action_logs_user_logged_at_idx
 actions_user_id_idx
 SEARCH action_logs USING COVERING INDEX action_logs_user_logged_at_idx (user_id=? AND logged_at>? AND logged_at<?)
 ```
+
+## Rollout log (2026-11-03)
+- Turso CLI was not installed, so steps 1-4 ran the same SQL through `@libsql/client` with the BE `.env` credentials. Backup: `D:\vibe\freq\backups\turso-2026-11-03-before-indexes.json` (local workspace, outside the repos; holds user emails and password hashes). 2 users, 3 actions, 6 logs; 0 non-ISO and 0 offset-less `logged_at` values.
+- Indexes created; `EXPLAIN` shows `SEARCH action_logs USING COVERING INDEX action_logs_user_logged_at_idx`; row count unchanged.
+- BE `26d67ba` deployed (Vercel status success); `/api/health` 200; `/logs/streak` with a signed-in session: 200 `{"streak":1}` for `Asia/Saigon`, 400 for `Mars/Base`.
+- Web `280464f` deployed; Calendar makes three log requests (month range, streak, selected day) and none without `from`/`to`.
