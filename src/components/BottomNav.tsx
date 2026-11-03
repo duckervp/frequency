@@ -20,13 +20,15 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     return (
         <>
             {showFab && (
-                <div className="fixed bottom-24 right-6 z-30">
-                    <Link
-                        to="/register"
-                        className="bg-primary text-background-dark size-14 rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center transform active:scale-90 transition-transform cursor-pointer"
-                    >
-                        <span className="material-symbols-outlined text-3xl font-bold">add</span>
-                    </Link>
+                <div className="fixed bottom-24 left-0 right-0 z-30 pointer-events-none">
+                    <div className="max-w-md mx-auto flex justify-end px-6">
+                        <Link
+                            to="/register"
+                            className="pointer-events-auto bg-primary text-background-dark size-14 rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center transform active:scale-90 transition-transform cursor-pointer"
+                        >
+                            <span className="material-symbols-outlined text-3xl font-bold">add</span>
+                        </Link>
+                    </div>
                 </div>
             )}
 
