@@ -7,8 +7,10 @@ import CalendarSelect from '../components/CalendarSelect';
 import CalendarGrid from '../components/CalendarGrid';
 import CalendarStats from '../components/CalendarStats';
 import ActionItem from '../components/ActionItem';
-import { logsApi, actionsApi, localDayRange, localMonthRange, type ApiLog, type ApiAction } from '../lib/api';
+import ErrorState from '../components/ErrorState';
+import { logsApi, actionsApi, errorMessage, localDayRange, localMonthRange, type ApiLog } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useAsyncAction, useLoad } from '../hooks/useLoad';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -35,27 +37,15 @@ export const CalendarPage: React.FC = () => {
     const [month, setMonth] = useState(today.getMonth()); // 0-indexed
     const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
-    const [actions, setActions] = useState<ApiAction[]>([]);
+    const actionsLoad = useLoad(actionsApi.list);
+    const actions = actionsLoad.data ?? [];
     const [filterActionId, setFilterActionId] = useState<string | null>(null);
-    const [actionsLoading, setActionsLoading] = useState(true);
 
     // Logs per local month ("YYYY-MM"), fetched one month at a time instead of the whole history
     const [logsByMonth, setLogsByMonth] = useState<Map<string, ApiLog[]>>(new Map());
+    const [monthErrors, setMonthErrors] = useState<Map<string, string>>(new Map());
     const monthRequests = useRef(new Map<string, Promise<ApiLog[]>>());
-    // Computed by the BE, so the streak never needs the log history on the client
-    const [currentStreak, setCurrentStreak] = useState<number | null>(null);
-    const [streakVersion, setStreakVersion] = useState(0);
-
-    // Logs for the selected day detail view
-    const [dayLogs, setDayLogs] = useState<ApiLog[]>([]);
-    const [dayLoading, setDayLoading] = useState(false);
-
-    // ── Load actions once ─────────────────────────────────────────────────────
-    useEffect(() => {
-        actionsApi.list()
-            .then(setActions)
-            .finally(() => setActionsLoading(false));
-    }, []);
+    const remove = useAsyncAction();
 
     // ── Load logs one month at a time (each month fetched once) ──────────────
     const loadMonth = useCallback((y: number, m: number) => {
@@ -65,49 +55,67 @@ export const CalendarPage: React.FC = () => {
             request = logsApi.list(localMonthRange(y, m));
             monthRequests.current.set(key, request);
             request.then(
-                (rows) => setLogsByMonth(prev => new Map(prev).set(key, rows)),
-                () => {
-                    // Show the month as empty rather than loading forever; revisiting it retries
+                (rows) => {
+                    setLogsByMonth(prev => new Map(prev).set(key, rows));
+                    setMonthErrors(prev => {
+                        if (!prev.has(key)) return prev;
+                        const next = new Map(prev);
+                        next.delete(key);
+                        return next;
+                    });
+                },
+                (err) => {
+                    // Forget the failed request so a retry or a later visit fetches again
                     monthRequests.current.delete(key);
-                    setLogsByMonth(prev => new Map(prev).set(key, []));
+                    setMonthErrors(prev => new Map(prev).set(key, errorMessage(err)));
                 },
             );
         }
         return request;
     }, []);
 
+    const retryMonth = () => {
+        setMonthErrors(prev => {
+            const next = new Map(prev);
+            next.delete(monthKey(year, month));
+            return next;
+        });
+        loadMonth(year, month).catch(() => {});
+    };
+
     useEffect(() => {
         loadMonth(year, month).catch(() => {});
     }, [year, month, loadMonth]);
 
-    useEffect(() => {
-        let cancelled = false;
-        setCurrentStreak(null);
-        logsApi.streak(filterActionId)
-            .then((res) => { if (!cancelled) setCurrentStreak(res.streak); })
-            .catch(() => { if (!cancelled) setCurrentStreak(0); });
-        return () => { cancelled = true; };
-    }, [filterActionId, streakVersion]);
+    // Computed by the BE, so the streak never needs the log history on the client
+    const loadStreak = useCallback(() => logsApi.streak(filterActionId), [filterActionId]);
+    const streak = useLoad(loadStreak);
 
     const monthLogs = React.useMemo(() => logsByMonth.get(monthKey(year, month)) ?? [], [logsByMonth, year, month]);
-    const monthLoading = !logsByMonth.has(monthKey(year, month));
+    const monthError = monthErrors.get(monthKey(year, month)) ?? '';
+    const monthLoading = !logsByMonth.has(monthKey(year, month)) && !monthError;
 
     // ── Load logs for the selected day ────────────────────────────────────────
-    const loadDayLogs = useCallback(async (d: number) => {
-        setDayLoading(true);
-        try {
-            const rows = await logsApi.list(localDayRange(year, month, d));
-            setDayLogs(rows);
-        } finally {
-            setDayLoading(false);
-        }
-    }, [year, month]);
+    const loadDayLogs = useCallback(
+        () => (selectedDay === null ? Promise.resolve([]) : logsApi.list(localDayRange(year, month, selectedDay))),
+        [year, month, selectedDay],
+    );
+    const day = useLoad(loadDayLogs);
+    const dayLogs = React.useMemo(() => day.data ?? [], [day.data]);
 
-    useEffect(() => {
-        if (selectedDay !== null) {
-            loadDayLogs(selectedDay);
-        }
-    }, [selectedDay, loadDayLogs]);
+    const handleDelete = (id: string) => {
+        if (!window.confirm('Delete this log entry?')) return;
+        remove.run(async () => {
+            await logsApi.remove(id);
+            day.setData(rows => rows.filter(l => l.log.id !== id));
+            setLogsByMonth(prev => {
+                const next = new Map(prev);
+                next.forEach((rows, key) => next.set(key, rows.filter(l => l.log.id !== id)));
+                return next;
+            });
+            streak.reload();
+        });
+    };
 
     // ── Derived: active days for the month (filtered by action if any) ────────
     const activeDays = React.useMemo(() => {
@@ -168,7 +176,7 @@ export const CalendarPage: React.FC = () => {
                     actions={actions}
                     selectedActionId={filterActionId}
                     onChange={setFilterActionId}
-                    loading={actionsLoading}
+                    loading={actionsLoad.loading}
                 />
 
                 {/* Month grid */}
@@ -182,12 +190,14 @@ export const CalendarPage: React.FC = () => {
                     onNextMonth={handleNextMonth}
                 />
 
+                {monthError && <ErrorState message={monthError} onRetry={retryMonth} />}
+
                 {/* Stats */}
                 <CalendarStats
                     totalThisMonth={totalThisMonth}
-                    currentStreak={currentStreak ?? 0}
+                    currentStreak={streak.data?.streak ?? 0}
                     loading={monthLoading}
-                    streakLoading={currentStreak === null}
+                    streakLoading={streak.loading}
                 />
 
                 {/* Day detail panel */}
@@ -204,7 +214,11 @@ export const CalendarPage: React.FC = () => {
                             )}
                         </div>
 
-                        {dayLoading && (
+                        {remove.error && <ErrorState message={remove.error} />}
+
+                        {day.error && <ErrorState message={day.error} onRetry={day.reload} />}
+
+                        {day.loading && (
                             <div className="space-y-3">
                                 {Array.from({ length: 2 }).map((_, i) => (
                                     <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-slate-200/30 dark:bg-slate-800/30">
@@ -218,7 +232,7 @@ export const CalendarPage: React.FC = () => {
                             </div>
                         )}
 
-                        {!dayLoading && (
+                        {!day.loading && !day.error && (
                             <div className="animate-fade-in">
                                 {filteredDayLogs.length === 0 ? (
                                     <div className="text-center py-8 text-slate-400">
@@ -238,18 +252,7 @@ export const CalendarPage: React.FC = () => {
                                                 category="Logged"
                                                 icon={entry.action?.icon ?? 'task_alt'}
                                                 onEdit={() => navigate(`/edit?logId=${entry.log.id}`)}
-                                                onDelete={async () => {
-                                                    if (window.confirm('Delete this log entry?')) {
-                                                        await logsApi.remove(entry.log.id);
-                                                        setDayLogs(prev => prev.filter(l => l.log.id !== entry.log.id));
-                                                        setLogsByMonth(prev => {
-                                                            const next = new Map(prev);
-                                                            next.forEach((rows, key) => next.set(key, rows.filter(l => l.log.id !== entry.log.id)));
-                                                            return next;
-                                                        });
-                                                        setStreakVersion(v => v + 1);
-                                                    }
-                                                }}
+                                                onDelete={() => handleDelete(entry.log.id)}
                                             />
                                         ))}
                                     </div>

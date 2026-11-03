@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
+import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
-import { actionsApi, logsApi, type ApiAction, type ApiLog } from '../lib/api';
+import { actionsApi, logsApi } from '../lib/api';
 import { useAuth, useRequireAuth } from '../hooks/useAuth';
+import { useLoad } from '../hooks/useLoad';
+
+const loadLast24h = () => logsApi.list({ last24h: true });
 
 // Default quick action stubs shown when user has no custom actions yet
 const DEFAULT_ACTIONS = [
@@ -20,27 +24,15 @@ export const DashboardPage: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
 
-    const [actions, setActions] = useState<ApiAction[]>([]);
-    const [logs, setLogs] = useState<ApiLog[]>([]);
+    const actions = useLoad(actionsApi.list);
+    const logs = useLoad(loadLast24h);
     const [search, setSearch] = useState('');
-    const [actionsLoading, setActionsLoading] = useState(true);
-    const [logsLoading, setLogsLoading] = useState(true);
 
-    useEffect(() => {
-        actionsApi.list()
-            .then(setActions)
-            .finally(() => setActionsLoading(false));
-
-        logsApi.list({ last24h: true })
-            .then(setLogs)
-            .finally(() => setLogsLoading(false));
-    }, []);
-
-    // Only show real actions if finished loading, else show null (to trigger skeletons)
-    const quickActions = !actionsLoading ? (actions.length > 0 ? actions.slice(0, 5) : DEFAULT_ACTIONS) : null;
+    // Default stubs only for a user who really has no actions, never after a failed load
+    const quickActions = actions.data && (actions.data.length > 0 ? actions.data.slice(0, 5) : DEFAULT_ACTIONS);
 
     // Filter logs by search query (matches action name or note)
-    const filteredLogs = logs.filter((entry) => {
+    const filteredLogs = (logs.data ?? []).filter((entry) => {
         const q = search.toLowerCase();
         if (!q) return true;
         return (
@@ -100,7 +92,11 @@ export const DashboardPage: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {actionsLoading ? (
+                        {actions.error ? (
+                            <div className="col-span-2">
+                                <ErrorState message={actions.error} onRetry={actions.reload} />
+                            </div>
+                        ) : actions.loading ? (
                             Array.from({ length: 4 }).map((_, i) => (
                                 <div key={i} className="flex flex-col items-start p-4 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 border border-transparent">
                                     <div className="size-10 rounded-lg skeleton mb-3" />
@@ -144,7 +140,9 @@ export const DashboardPage: React.FC = () => {
                 <section className="mt-8">
                     <h3 className="text-lg font-semibold mb-4">Last 24 Hours</h3>
 
-                    {logsLoading ? (
+                    {logs.error ? (
+                        <ErrorState message={logs.error} onRetry={logs.reload} />
+                    ) : logs.loading ? (
                         <div className="space-y-3">
                             {Array.from({ length: 3 }).map((_, i) => (
                                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-slate-200/30 dark:bg-slate-800/30">

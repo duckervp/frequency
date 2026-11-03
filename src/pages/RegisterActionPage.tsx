@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import TimePicker from '../components/TimePicker';
-import { logsApi, actionsApi, type ApiAction } from '../lib/api';
+import ErrorState from '../components/ErrorState';
+import { actionsApi, errorMessage, logsApi, renameNotFound, type ApiAction } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useLoad } from '../hooks/useLoad';
 import { pickedTimeToISO } from '../lib/time';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
@@ -17,36 +19,37 @@ export const RegisterActionPage: React.FC = () => {
     const initHour = now.getHours() % 12 || 12;
     const initPeriod: 'AM' | 'PM' = now.getHours() < 12 ? 'AM' : 'PM';
 
-    const [action, setAction] = useState<ApiAction | null>(null);
+    // null for a quick log (no actionId); an action that no longer exists is an error, not a quick log
+    const loadAction = useCallback(
+        async (): Promise<ApiAction | null> =>
+            actionId ? actionsApi.get(actionId).catch(renameNotFound('This action no longer exists.')) : null,
+        [actionId],
+    );
+    const actionLoad = useLoad(loadAction);
+    const action = actionLoad.data ?? null;
+    const loading = actionLoad.loading;
+
     const [notes, setNotes] = useState('');
     const [hour, setHour] = useState(initHour);
     const [minute, setMinute] = useState(now.getMinutes());
     const [period, setPeriod] = useState<'AM' | 'PM'>(initPeriod);
-    const [loading, setLoading] = useState(!!actionId);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
-
-    useEffect(() => {
-        if (!actionId) return;
-        setLoading(true);
-        actionsApi.list().then((list) => {
-            const found = list.find((a: ApiAction) => a.id === actionId);
-            if (found) setAction(found);
-        }).finally(() => setLoading(false));
-    }, [actionId]);
+    const canSave = !saving && !loading && !actionLoad.error;
 
     const handleSave = async () => {
+        if (!canSave) return;
         setSaving(true);
         setError('');
         try {
             await logsApi.create({
-                actionId: actionId ?? undefined,
+                actionId: action?.id,
                 loggedAt: pickedTimeToISO(hour, minute, period),
                 note: notes,
             });
             navigate('/dashboard');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to save');
+            setError(errorMessage(err));
         } finally {
             setSaving(false);
         }
@@ -58,7 +61,7 @@ export const RegisterActionPage: React.FC = () => {
                 <TopBar
                     title="Register Action"
                     left={<TopBarButton icon="close" label="Close" onClick={() => navigate(-1)} />}
-                    right={<TopBarButton icon="check_circle" label="Save" onClick={handleSave} disabled={saving} className="text-primary" />}
+                    right={<TopBarButton icon="check_circle" label="Save" onClick={handleSave} disabled={!canSave} className="text-primary" />}
                 />
             }
         >
@@ -72,7 +75,9 @@ export const RegisterActionPage: React.FC = () => {
 
                 {/* Action Title */}
                 <div className="mb-8 text-center min-h-[72px] flex flex-col items-center justify-center">
-                    {loading ? (
+                    {actionLoad.error ? (
+                        <ErrorState message={actionLoad.error} onRetry={actionLoad.reload} />
+                    ) : loading ? (
                         <>
                             <div className="h-4 w-16 skeleton mb-2" />
                             <div className="h-8 w-48 skeleton" />
@@ -143,7 +148,7 @@ export const RegisterActionPage: React.FC = () => {
             <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-8 pt-4 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light/95 dark:via-background-dark/95 to-transparent pointer-events-none z-20">
                 <button
                     onClick={handleSave}
-                    disabled={saving}
+                    disabled={!canSave}
                     className="pointer-events-auto w-full bg-primary hover:bg-primary/90 text-background-dark font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-60"
                 >
                     <span className="material-symbols-outlined font-bold">save</span>

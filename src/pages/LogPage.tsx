@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 import SummaryCard from '../components/SummaryCard';
 import ActionItem from '../components/ActionItem';
 import BottomNav from '../components/BottomNav';
-import { logsApi, localDayRange, type ApiLog, type DayRange } from '../lib/api';
+import { logsApi, localDayRange, type DayRange } from '../lib/api';
+import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { useRequireAuth } from '../hooks/useAuth';
 
 // ── Date pill helpers ──────────────────────────────────────────────────────────
@@ -37,30 +39,29 @@ export const LogPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [selectedDateStr, setSelectedDateStr] = useState(DATE_PILLS[0].dateStr);
-    const [logs, setLogs] = useState<ApiLog[]>([]);
-    const [totalToday, setTotalToday] = useState(0);
     // Formatted here, not taken from /stats: the server formats dates in its own timezone
     const todayLabel = `Today, ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-    const [loading, setLoading] = useState(true);
+    const isToday = selectedDateStr === DATE_PILLS[0].dateStr;
 
-    const loadLogs = useCallback(async (dateStr: string) => {
-        setLoading(true);
-        try {
-            const range = DATE_PILLS.find(p => p.dateStr === dateStr)!.range;
-            const [logsData, statsData] = await Promise.all([
-                logsApi.list(range),
-                logsApi.stats(DATE_PILLS[0].range),
-            ]);
-            setLogs(logsData);
-            setTotalToday(statsData.totalToday);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const loadDay = useCallback(async () => {
+        const range = DATE_PILLS.find(p => p.dateStr === selectedDateStr)!.range;
+        const [logs, stats] = await Promise.all([logsApi.list(range), logsApi.stats(DATE_PILLS[0].range)]);
+        return { logs, totalToday: stats.totalToday };
+    }, [selectedDateStr]);
+    const day = useLoad(loadDay);
+    const remove = useAsyncAction();
+    const logs = day.data?.logs ?? [];
 
-    useEffect(() => {
-        loadLogs(selectedDateStr);
-    }, [selectedDateStr, loadLogs]);
+    const handleDelete = (id: string) => {
+        if (!window.confirm('Delete log?')) return;
+        remove.run(async () => {
+            await logsApi.remove(id);
+            day.setData(d => ({
+                logs: d.logs.filter(l => l.log.id !== id),
+                totalToday: isToday ? d.totalToday - 1 : d.totalToday,
+            }));
+        });
+    };
 
     const handleDateSelect = (dateStr: string) => {
         setSelectedDateStr(dateStr);
@@ -73,8 +74,8 @@ export const LogPage: React.FC = () => {
             <main className="flex-1 w-full pb-32">
                 <SummaryCard
                     coverImage="https://lh3.googleusercontent.com/aida-public/AB6AXuAo8vgvS9AsNPunjyNQU2ACFlxYTiic6BMiK3j0EN7uSXKHbbN0JuhotMlWL5kvH_zqSEF7WTiR5eeEUp9GklWKHSd8AST7XRaLVxkI7uC2Z-gHy2md13_QaJzjpvQ3qxkU16Qf0erk-Ax8eu66CpfjmGfdRNPlAV5Wumq5yj_45O9PpJC-D6WJtlDmeJISntdpQ-vQKkBBx1BuW-ynKtITrCFbTXwHBWSRsf_3nLCULCdv52QTHBJwUMd7vhanJ-90p0vbdA7Iryg"
-                    totalActions={totalToday}
-                    loading={loading}
+                    totalActions={day.data?.totalToday ?? 0}
+                    loading={day.loading}
                 />
 
                 {/* Date pills */}
@@ -102,8 +103,18 @@ export const LogPage: React.FC = () => {
                     </span>
                 </div>
 
+                {remove.error && (
+                    <div className="px-4 pb-3">
+                        <ErrorState message={remove.error} />
+                    </div>
+                )}
+
                 <div className="space-y-1">
-                    {loading ? (
+                    {day.error ? (
+                        <div className="px-4">
+                            <ErrorState message={day.error} onRetry={day.reload} />
+                        </div>
+                    ) : day.loading ? (
                         <div className="space-y-3 px-4">
                             {Array.from({ length: 4 }).map((_, i) => (
                                 <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-slate-200/30 dark:bg-slate-800/30">
@@ -121,7 +132,7 @@ export const LogPage: React.FC = () => {
                                 <div className="text-center py-10 text-slate-400">
                                     <span className="material-symbols-outlined text-4xl mb-2 block">history</span>
                                     <p className="text-sm">
-                                        {selectedDateStr === DATE_PILLS[0].dateStr
+                                        {isToday
                                             ? 'No actions logged today yet.'
                                             : 'No actions logged on this day.'}
                                     </p>
@@ -138,13 +149,7 @@ export const LogPage: React.FC = () => {
                                         category="Logged"
                                         icon={entry.action?.icon ?? 'task_alt'}
                                         onEdit={() => navigate(`/edit?logId=${entry.log.id}`)}
-                                        onDelete={async () => {
-                                            if (window.confirm('Delete log?')) {
-                                                await logsApi.remove(entry.log.id);
-                                                setLogs(prev => prev.filter(l => l.log.id !== entry.log.id));
-                                                if (selectedDateStr === DATE_PILLS[0].dateStr) setTotalToday(n => n - 1);
-                                            }
-                                        }}
+                                        onDelete={() => handleDelete(entry.log.id)}
                                     />
                                 ))
                             )}

@@ -1,37 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { actionsApi, type ApiAction } from '../lib/api';
+import { actionsApi } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import BottomNav from '../components/BottomNav';
+import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 
 export const ManageActionsPage: React.FC = () => {
     useRequireAuth();
     const navigate = useNavigate();
-    const [actions, setActions] = useState<ApiAction[]>([]);
+    const list = useLoad(actionsApi.list);
+    const remove = useAsyncAction();
     const [search, setSearch] = useState('');
-    const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-
-    useEffect(() => {
-        actionsApi.list()
-            .then(setActions)
-            .finally(() => setLoading(false));
-    }, []);
+    const loading = list.loading;
 
     const handleDelete = async (id: string) => {
         if (!window.confirm('Delete this action? This cannot be undone.')) return;
         setDeletingId(id);
-        try {
+        await remove.run(async () => {
             await actionsApi.remove(id);
-            setActions((prev) => prev.filter((a) => a.id !== id));
-        } finally {
-            setDeletingId(null);
-        }
+            list.setData((actions) => actions.filter((a) => a.id !== id));
+        });
+        setDeletingId(null);
     };
 
-    const filtered = actions.filter((a) =>
+    const filtered = (list.data ?? []).filter((a) =>
         a.name.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -78,7 +74,11 @@ export const ManageActionsPage: React.FC = () => {
                         </span>
                     </div>
 
-                    {loading ? (
+                    {remove.error && <ErrorState message={remove.error} />}
+
+                    {list.error ? (
+                        <ErrorState message={list.error} onRetry={list.reload} />
+                    ) : loading ? (
                         <div className="space-y-3">
                             {Array.from({ length: 4 }).map((_, i) => (
                                 <div key={i} className="bg-white dark:bg-primary/5 border border-slate-100 dark:border-primary/10 rounded-xl p-4 flex items-center gap-4">
@@ -92,7 +92,7 @@ export const ManageActionsPage: React.FC = () => {
                         </div>
                     ) : (
                         <>
-                            {!loading && filtered.length === 0 && (
+                            {filtered.length === 0 && (
                                 <div className="text-center py-12 text-slate-400">
                                     <span className="material-symbols-outlined text-4xl mb-2 block">sentiment_neutral</span>
                                     <p className="text-sm">No actions yet. Tap + to create one.</p>

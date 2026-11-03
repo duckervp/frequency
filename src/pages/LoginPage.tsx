@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { errorMessage } from '../lib/api';
 
 type Mode = 'choose' | 'email-login' | 'email-register';
 
@@ -21,7 +22,7 @@ export const LoginPage: React.FC = () => {
                 await register(email, password, name);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Something went wrong');
+            setError(errorMessage(err));
         }
     };
 

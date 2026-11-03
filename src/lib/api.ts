@@ -86,6 +86,20 @@ export class ApiError extends Error {
     }
 }
 
+/** For `.catch()`: turns a 404 into an ApiError with a message for the user, rethrows anything else */
+export function renameNotFound(message: string) {
+    return (err: unknown): never => {
+        if (err instanceof ApiError && err.status === 404) throw new ApiError(404, message);
+        throw err;
+    };
+}
+
+/** Text to show the user for a failed call: the server's reason for 4xx, a generic line otherwise */
+export function errorMessage(err: unknown): string {
+    if (err instanceof ApiError && err.status >= 400 && err.status < 500) return err.message;
+    return 'Something went wrong. Check your connection and try again.';
+}
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export const authApi = {
@@ -116,6 +130,8 @@ export const authApi = {
 
 export const actionsApi = {
     list: () => apiFetch<ApiAction[]>('/actions'),
+
+    get: (id: string) => apiFetch<ApiAction>(`/actions/${id}`),
 
     create: (data: {
         name: string;

@@ -34,22 +34,19 @@
 ```
 
 ### Data Fetching Pattern
+Load data with `useLoad` (`src/hooks/useLoad.ts`); never a hand-written `useEffect` + `.then().finally()` without error handling.
 ```tsx
-const [data, setData] = useState<T[]>([]);
-const [loading, setLoading] = useState(true);
+const actions = useLoad(actionsApi.list);                 // stable module function
+const loadDay = useCallback(() => logsApi.list(range), [range]);
+const day = useLoad(loadDay);                             // reloads when range changes; late responses are ignored
 
-useEffect(() => {
-    api.list()
-        .then(setData)
-        .finally(() => setLoading(false));
-}, []);
+{day.error ? <ErrorState message={day.error} onRetry={day.reload} />
+    : day.loading ? <Skeleton />
+    : <List rows={day.data} />}
 ```
-
-For dependent fetches, use `useCallback` with dependencies and `useEffect` calling it:
-```tsx
-const load = useCallback(async () => { ... }, [dep1, dep2]);
-useEffect(() => { load(); }, [load]);
-```
+- Never show default or empty data after a failed load (e.g. the Dashboard's starter actions only appear when the list really is empty).
+- Mutations (delete, save) go through `useAsyncAction().run(...)` and show `error` with `<ErrorState />`; update local data with `setData` instead of refetching.
+- User-facing text for any caught error comes from `errorMessage(err)` in `lib/api.ts`.
 
 ### Page Layout
 Every signed-in page renders `PageLayout` with a `TopBar` (`src/components/PageLayout.tsx`, `src/components/TopBar.tsx`); do not build a page wrapper or header by hand.
@@ -123,15 +120,17 @@ return c.json({ error: 'Human readable message' }, 400 | 401 | 404 | 409);
 ## Error Handling
 
 ### Frontend
+See Data Fetching Pattern: `useLoad` for loads, `useAsyncAction` for mutations, `errorMessage(err)` for the text. A form that keeps its own error state still uses `errorMessage`:
 ```tsx
 try {
     await someApi.call();
 } catch (err) {
-    setError(err instanceof Error ? err.message : 'Something went wrong');
+    setError(errorMessage(err));
 }
 ```
 
 ### Backend
+Request bodies are read and checked with `src/lib/validate.ts` (`jsonBody`, `text`, `instant`, ...); validation helpers throw a 400 that `app.onError` returns as `{ error }`.
 ```typescript
 // Wrap DB operations, return structured errors
 const user = await db.select()...get();

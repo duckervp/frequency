@@ -45,6 +45,7 @@ https://<app>.vercel.app/api
 | GET | `/auth/google/callback` | ❌ | Google OAuth callback → redirects with `#token=...` |
 | GET | `/auth/me` | ✅ | Get current user profile |
 | GET | `/actions` | ✅ | List user's actions |
+| GET | `/actions/:id` | yes | One of the user's actions (404 if missing or someone else's) |
 | POST | `/actions` | ✅ | Create action |
 | PUT | `/actions/:id` | ✅ | Update action |
 | DELETE | `/actions/:id` | ✅ | Delete action |
