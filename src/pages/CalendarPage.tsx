@@ -17,14 +17,19 @@ function toDateStr(year: number, month: number, day: number): string {
     return `${year}-${mm}-${dd}`;
 }
 
-/** Compute streak: count consecutive days (going backwards from today) that have at least one log */
+/** YYYY-MM-DD of the given instant in the user's local timezone */
+function toLocalDateKey(d: Date): string {
+    return toDateStr(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/** Compute streak: count consecutive local days (going backwards from today) that have at least one log */
 function computeStreak(logsByDay: Map<string, number>): number {
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
 
     while (true) {
-        const key = cursor.toISOString().slice(0, 10);
+        const key = toLocalDateKey(cursor);
         if (logsByDay.has(key) && logsByDay.get(key)! > 0) {
             streak++;
             cursor.setDate(cursor.getDate() - 1);
@@ -129,7 +134,7 @@ export const CalendarPage: React.FC = () => {
         // Build a map of date → count from all logs (no action filter for streak calculation)
         const byDay = new Map<string, number>();
         monthLogs.forEach((entry) => {
-            const key = entry.log.loggedAt.slice(0, 10);
+            const key = toLocalDateKey(new Date(entry.log.loggedAt));
             byDay.set(key, (byDay.get(key) ?? 0) + 1);
         });
         return computeStreak(byDay);

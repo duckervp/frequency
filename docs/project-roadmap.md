@@ -8,7 +8,9 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [x] Test infrastructure: BE Vitest API tests + web Playwright e2e, both on a local SQLite test DB
 - [ ] No tests for mobile yet
 - [ ] Suspected (not reproduced): `POST /logs` does not check that `actionId` belongs to the current user — a log could reference, and the response would leak, another user's action
-- [ ] Suspected (not reproduced): `computeStreak` (web `CalendarPage.tsx`, mobile `calendar.tsx`) builds day keys with `toISOString()` (UTC) from a local-midnight date — may be off by one day in UTC+ timezones
+- [x] `computeStreak` (web `CalendarPage.tsx`, mobile `calendar.tsx`) keyed days by UTC date — off by one day outside UTC. Now keyed by local date; regression spec `e2e/calendar-streak.spec.ts`
+- [ ] Suspected (not reproduced): BE `GET /logs?date=` and `GET /logs/stats` match days with `loggedAt LIKE 'YYYY-MM-DD%'` on UTC strings, so the calendar day detail, Log page date pills (web `LogPage.tsx`, mobile `log.tsx`, which also build the date with `toISOString()`) and "today" count use UTC days. Needs an API change (e.g. `from`/`to` instants or a `tz` param)
+- [ ] Suspected (not reproduced): mobile `register.tsx` / `edit.tsx` build `loggedAt` as `<UTC date>T<local time>:00` with no offset — wrong date/instant outside UTC
 - [ ] Web lint: 2 `react-refresh/only-export-components` errors in `src/hooks/useAuth.tsx`
 - [ ] BE has no migration history (DB created with `db:push`) — baseline migrations before using `db:migrate`
 - [ ] Google OAuth redirects to a single `FRONTEND_URL`, so it can only serve web *or* mobile at a time
