@@ -7,7 +7,7 @@ import {
     type ReactNode,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, type ApiUser } from '../lib/api';
+import { authApi, setUnauthorizedHandler, type ApiUser } from '../lib/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,10 +30,14 @@ const USER_KEY = 'freq_user';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const navigate = useNavigate();
+    // Google OAuth lands on /dashboard#token=... Store it before the page's own effects
+    // fetch, otherwise they go out with whatever older token is still stored.
     const [token, setToken] = useState<string | null>(() => {
         const hash = window.location.hash;
         if (hash.startsWith('#token=')) {
-            return hash.slice(7);
+            localStorage.setItem(TOKEN_KEY, hash.slice(7));
+            localStorage.removeItem(USER_KEY);
+            window.history.replaceState(null, '', window.location.pathname);
         }
         return localStorage.getItem(TOKEN_KEY);
     });
@@ -55,8 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem(USER_KEY);
         setToken(null);
         setUser(null);
-        navigate('/login');
+        navigate('/login', { replace: true });
     }, [navigate]);
+
+    useEffect(() => {
+        setUnauthorizedHandler(logout);
+        return () => setUnauthorizedHandler(null);
+    }, [logout]);
 
     const login = useCallback(
         async (email: string, password: string) => {
@@ -90,22 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authApi.loginWithGoogle();
     }, []);
 
-    // On mount: check URL hash for Google OAuth token redirect
+    // If we have a token but no user (e.g. after Google OAuth), fetch user details
     useEffect(() => {
-        const hash = window.location.hash;
-        let activeToken = token;
-
-        if (hash.startsWith('#token=')) {
-            const t = hash.slice(7);
-            // Clear hash from URL silently
-            window.history.replaceState(null, '', window.location.pathname);
-            localStorage.setItem(TOKEN_KEY, t);
-            setToken(t);
-            activeToken = t;
-        }
-
-        // If we have a token but no user, fetch user details
-        if (activeToken && !user) {
+        if (token && !user) {
             setIsLoading(true);
             authApi.getMe()
                 .then(data => {

@@ -34,6 +34,13 @@ export interface ApiLog {
 
 const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api';
 
+let onUnauthorized: (() => void) | null = null;
+
+/** Called when a request sent with a token gets 401 (expired or revoked session). */
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+    onUnauthorized = handler;
+}
+
 async function apiFetch<T>(
     path: string,
     options: RequestInit = {}
@@ -54,6 +61,12 @@ async function apiFetch<T>(
             const body = await res.json().catch(() => ({}));
             const msg = (body as { error?: string }).error ?? res.statusText;
             console.error(`[API] Error from ${url}: ${res.status} - ${msg}`);
+            // Login/register answer 401 for a wrong password; a 401 for an older token
+            // than the stored one must not end the newer session
+            if (res.status === 401 && token && !path.startsWith('/auth/')
+                && token === localStorage.getItem('freq_token')) {
+                onUnauthorized?.();
+            }
             throw new ApiError(res.status, msg);
         }
 

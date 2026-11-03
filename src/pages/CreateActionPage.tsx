@@ -83,14 +83,15 @@ export const CreateActionPage: React.FC = () => {
                     <h2 className="text-slate-900 dark:text-slate-100 text-lg font-semibold leading-tight tracking-tight flex-1 text-center">
                         {editId ? 'Edit Action' : 'New Action'}
                     </h2>
-                    <div
-                        className="flex size-10 items-center justify-end cursor-pointer transition-opacity hover:opacity-80"
+                    <button
+                        className="flex size-10 items-center justify-end cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-60"
                         onClick={handleSave}
+                        disabled={saving}
                     >
                         <p className="text-primary text-base font-semibold leading-normal">
                             {saving ? '...' : 'Done'}
                         </p>
-                    </div>
+                    </button>
                 </div>
 
                 {/* Form Content */}

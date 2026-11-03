@@ -143,6 +143,7 @@ export const LogPage: React.FC = () => {
                                             if (window.confirm('Delete log?')) {
                                                 await logsApi.remove(entry.log.id);
                                                 setLogs(prev => prev.filter(l => l.log.id !== entry.log.id));
+                                                if (selectedDateStr === DATE_PILLS[0].dateStr) setTotalToday(n => n - 1);
                                             }
                                         }}
                                     />
