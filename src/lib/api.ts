@@ -161,6 +161,14 @@ export function localDayRange(year: number, month: number, day: number): DayRang
     };
 }
 
+/** Bounds of a calendar month in the user's local timezone (month is 0-based) */
+export function localMonthRange(year: number, month: number): DayRange {
+    return {
+        from: new Date(year, month, 1).toISOString(),
+        to: new Date(year, month + 1, 1).toISOString(),
+    };
+}
+
 export const logsApi = {
     list: (params?: Partial<DayRange> & { last24h?: boolean }) => {
         const qs = new URLSearchParams();
@@ -177,6 +185,15 @@ export const logsApi = {
         apiFetch<{ totalToday: number; dateInfo: string }>(
             `/logs/stats?${new URLSearchParams(today).toString()}`
         ),
+
+    /** Consecutive local days with a log, counting back from today */
+    streak: (actionId?: string | null) => {
+        const now = new Date();
+        const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+        const qs = new URLSearchParams({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone, today });
+        if (actionId) qs.set('actionId', actionId);
+        return apiFetch<{ streak: number }>(`/logs/streak?${qs.toString()}`);
+    },
 
     create: (data: { actionId?: string; loggedAt: string; note?: string }) =>
         apiFetch<ApiLog>('/logs', { method: 'POST', body: JSON.stringify(data) }),

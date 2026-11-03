@@ -4,10 +4,11 @@ interface CalendarStatsProps {
     totalThisMonth: number;
     currentStreak: number;
     loading?: boolean;
+    streakLoading?: boolean;
 }
 
 export const CalendarStats: React.FC<CalendarStatsProps> = ({
-    totalThisMonth, currentStreak, loading,
+    totalThisMonth, currentStreak, loading, streakLoading,
 }) => {
     const streakMessage = currentStreak >= 7
         ? "You're on fire! 🔥 Keep it up!"
@@ -41,7 +42,7 @@ export const CalendarStats: React.FC<CalendarStatsProps> = ({
                         Current Streak
                     </p>
                     <div className="flex items-end gap-2">
-                        {loading ? (
+                        {(streakLoading ?? loading) ? (
                             <span className="h-9 w-12 skeleton my-0.5" />
                         ) : (
                             <span className="text-3xl font-bold animate-fade-in">{currentStreak}</span>
