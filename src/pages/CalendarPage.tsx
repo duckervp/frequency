@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import PageLayout from '../components/PageLayout';
+import TopBar, { TopBarButton } from '../components/TopBar';
 import BottomNav from '../components/BottomNav';
 import CalendarSelect from '../components/CalendarSelect';
 import CalendarGrid from '../components/CalendarGrid';
@@ -159,10 +160,8 @@ export const CalendarPage: React.FC = () => {
         : null;
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
-            <Header title="Frequency Tracker" />
-
-            <main className="flex-1 overflow-y-auto hide-scrollbar max-w-md mx-auto w-full px-4 py-6 space-y-6 pb-32">
+        <PageLayout header={<TopBar title="Frequency Tracker" right={<TopBarButton icon="more_horiz" label="More" />} />}>
+            <main className="flex-1 w-full px-4 py-6 space-y-6 pb-32">
 
                 {/* Action filter */}
                 <CalendarSelect
@@ -262,7 +261,7 @@ export const CalendarPage: React.FC = () => {
             </main>
 
             <BottomNav activeTab="calendar" showFab />
-        </div>
+        </PageLayout>
     );
 };
 

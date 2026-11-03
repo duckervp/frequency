@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
+import PageLayout from '../components/PageLayout';
+import TopBar, { TopBarButton } from '../components/TopBar';
 import SummaryCard from '../components/SummaryCard';
 import ActionItem from '../components/ActionItem';
 import BottomNav from '../components/BottomNav';
@@ -68,10 +69,8 @@ export const LogPage: React.FC = () => {
     const selectedPill = DATE_PILLS.find(p => p.dateStr === selectedDateStr);
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
-            <Header title={todayLabel} />
-
-            <main className="flex-1 overflow-y-auto hide-scrollbar max-w-md mx-auto w-full pb-32">
+        <PageLayout header={<TopBar title={todayLabel} right={<TopBarButton icon="more_horiz" label="More" />} />}>
+            <main className="flex-1 w-full pb-32">
                 <SummaryCard
                     coverImage="https://lh3.googleusercontent.com/aida-public/AB6AXuAo8vgvS9AsNPunjyNQU2ACFlxYTiic6BMiK3j0EN7uSXKHbbN0JuhotMlWL5kvH_zqSEF7WTiR5eeEUp9GklWKHSd8AST7XRaLVxkI7uC2Z-gHy2md13_QaJzjpvQ3qxkU16Qf0erk-Ax8eu66CpfjmGfdRNPlAV5Wumq5yj_45O9PpJC-D6WJtlDmeJISntdpQ-vQKkBBx1BuW-ynKtITrCFbTXwHBWSRsf_3nLCULCdv52QTHBJwUMd7vhanJ-90p0vbdA7Iryg"
                     totalActions={totalToday}
@@ -155,7 +154,7 @@ export const LogPage: React.FC = () => {
             </main>
 
             <BottomNav activeTab="log" showFab />
-        </div>
+        </PageLayout>
     );
 };
 

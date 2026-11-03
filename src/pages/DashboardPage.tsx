@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
+import PageLayout from '../components/PageLayout';
+import TopBar, { TopBarButton } from '../components/TopBar';
 import { actionsApi, logsApi, type ApiAction, type ApiLog } from '../lib/api';
 import { useAuth, useRequireAuth } from '../hooks/useAuth';
 
@@ -48,26 +50,26 @@ export const DashboardPage: React.FC = () => {
     });
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
-            <header className="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 pt-6 pb-4">
-                <div className="flex items-center justify-between max-w-md mx-auto">
-                    <div className="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary/20">
-                        {user?.avatarUrl ? (
-                            <img alt="Profile" className="w-full h-full object-cover" src={user.avatarUrl} />
-                        ) : (
-                            <div className="w-full h-full bg-primary/20 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-primary text-lg">person</span>
-                            </div>
-                        )}
-                    </div>
-                    <h1 className="text-lg font-bold leading-tight tracking-tight flex-1 text-center">Dashboard</h1>
-                    <button onClick={() => navigate('/settings')} className="flex w-10 items-center justify-end hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined">settings</span>
-                    </button>
-                </div>
-            </header>
-
-            <main className="flex-1 max-w-md mx-auto w-full px-4 pb-32">
+        <PageLayout
+            header={
+                <TopBar
+                    title="Dashboard"
+                    left={
+                        <div className="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary/20">
+                            {user?.avatarUrl ? (
+                                <img alt="Profile" className="w-full h-full object-cover" src={user.avatarUrl} />
+                            ) : (
+                                <div className="w-full h-full bg-primary/20 flex items-center justify-center">
+                                    <span className="material-symbols-outlined text-primary text-lg">person</span>
+                                </div>
+                            )}
+                        </div>
+                    }
+                    right={<TopBarButton icon="settings" label="Settings" onClick={() => navigate('/settings')} />}
+                />
+            }
+        >
+            <main className="flex-1 w-full px-4 pb-32">
                 {/* Search */}
                 <section className="mt-6 mb-8">
                     <h2 className="text-2xl font-bold leading-tight mb-4">What are you doing now?</h2>
@@ -191,7 +193,7 @@ export const DashboardPage: React.FC = () => {
             </main>
 
             <BottomNav activeTab="dashboard" />
-        </div>
+        </PageLayout>
     );
 };
 

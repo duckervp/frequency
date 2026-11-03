@@ -51,6 +51,20 @@ const load = useCallback(async () => { ... }, [dep1, dep2]);
 useEffect(() => { load(); }, [load]);
 ```
 
+### Page Layout
+Every signed-in page renders `PageLayout` with a `TopBar` (`src/components/PageLayout.tsx`, `src/components/TopBar.tsx`); do not build a page wrapper or header by hand.
+```tsx
+<PageLayout
+    header={<TopBar title="Settings" left={<TopBarButton icon="arrow_back_ios_new" label="Back" onClick={() => navigate(-1)} />} />}
+>
+    <main className="flex-1 px-4 pb-32">...</main>
+    <BottomNav activeTab="settings" />
+</PageLayout>
+```
+- `PageLayout` owns the background, the centered `max-w-md` column and the sticky top bar. Never add an `overflow-*` class to it or around the top bar: that creates a scroll container and the sticky bar scrolls away (regression spec `e2e/layout.spec.ts`).
+- Fixed elements (`BottomNav`, floating save buttons) go inside as children.
+- Icon buttons in the bar use `TopBarButton` with a `label` (accessible name).
+
 ### Auth Guard
 Every authenticated screen calls `useRequireAuth()` as the first hook:
 ```tsx
