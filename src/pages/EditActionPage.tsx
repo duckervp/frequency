@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import TimePicker from '../components/TimePicker';
 import { logsApi, type ApiLog } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { formatLogDay, withLocalTime } from '../lib/time';
 
 function parseISOToTimePicker(iso: string): { hour: number; minute: number; period: 'AM' | 'PM' } {
     const d = new Date(iso);
@@ -11,14 +12,6 @@ function parseISOToTimePicker(iso: string): { hour: number; minute: number; peri
     const period: 'AM' | 'PM' = h24 < 12 ? 'AM' : 'PM';
     const hour = h24 % 12 || 12;
     return { hour, minute, period };
-}
-
-function toISODateTime(hour: number, minute: number, period: 'AM' | 'PM', originalISO: string): string {
-    let h = hour % 12;
-    if (period === 'PM') h += 12;
-    const d = new Date(originalISO);
-    d.setHours(h, minute, 0, 0);
-    return d.toISOString();
 }
 
 export const EditActionPage: React.FC = () => {
@@ -52,11 +45,16 @@ export const EditActionPage: React.FC = () => {
 
     const handleSave = async () => {
         if (!logId || !logData) return;
+        const loggedAt = withLocalTime(logData.log.loggedAt, hour, minute, period);
+        if (loggedAt > new Date()) {
+            setError("The time can't be in the future");
+            return;
+        }
         setSaving(true);
         setError('');
         try {
             await logsApi.update(logId, {
-                loggedAt: toISODateTime(hour, minute, period, logData.log.loggedAt),
+                loggedAt: loggedAt.toISOString(),
                 note,
             });
             navigate(-1);
@@ -80,9 +78,7 @@ export const EditActionPage: React.FC = () => {
     };
 
     const actionName = logData?.action?.name ?? 'Action Log';
-    const logDate = logData
-        ? new Date(logData.log.loggedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        : '—';
+    const logDate = logData ? formatLogDay(logData.log.loggedAt) : '—';
 
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
@@ -129,7 +125,7 @@ export const EditActionPage: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg">{actionName}</h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm">Today, {logDate}</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm">{logDate}</p>
                             </div>
                         </div>
                     )}

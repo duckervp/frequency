@@ -3,15 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import TimePicker from '../components/TimePicker';
 import { logsApi, actionsApi, type ApiAction } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
-
-// Helper: convert 12-hour picker values to ISO loggedAt string
-function toISODateTime(hour: number, minute: number, period: 'AM' | 'PM'): string {
-    let h = hour % 12;
-    if (period === 'PM') h += 12;
-    const now = new Date();
-    now.setHours(h, minute, 0, 0);
-    return now.toISOString();
-}
+import { pickedTimeToISO } from '../lib/time';
 
 export const RegisterActionPage: React.FC = () => {
     useRequireAuth();
@@ -47,7 +39,7 @@ export const RegisterActionPage: React.FC = () => {
         try {
             await logsApi.create({
                 actionId: actionId ?? undefined,
-                loggedAt: toISODateTime(hour, minute, period),
+                loggedAt: pickedTimeToISO(hour, minute, period),
                 note: notes,
             });
             navigate('/dashboard');
