@@ -51,6 +51,7 @@ https://<app>.vercel.app/api
 | GET | `/logs` | ✅ | List logs (supports `?from=ISO&to=ISO` — a local day's bounds from the client, `?last24h=true`; legacy `?date=YYYY-MM-DD` matches the UTC day) |
 | GET | `/logs/:id` | ✅ | Get single log |
 | GET | `/logs/stats` | ✅ | Today's count + date label; pass `?from=&to=` for the client's local today (without them: UTC day) |
+| GET | `/logs/streak` | yes | `{ streak }`: consecutive local days with a log back from today; `?tz=` IANA zone (required), `&today=YYYY-MM-DD` (client's local today), `&actionId=` |
 | POST | `/logs` | ✅ | Create log entry |
 | PUT | `/logs/:id` | ✅ | Update log entry |
 | DELETE | `/logs/:id` | ✅ | Delete log entry |

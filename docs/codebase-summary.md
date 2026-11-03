@@ -53,7 +53,7 @@ D:\vibe\freq\                Workspace root (not a git repo) — CLAUDE.md, .cla
 | `LoginPage.tsx` | `/login` | `authApi.login`, `authApi.register`, `authApi.loginWithGoogle` |
 | `DashboardPage.tsx` | `/dashboard` | `actionsApi.list`, `logsApi.list({ last24h: true })` |
 | `LogPage.tsx` | `/log` | `logsApi.list({ date })`, `logsApi.stats`, `logsApi.remove` |
-| `CalendarPage.tsx` | `/calendar` | `logsApi.list`, `actionsApi.list` |
+| `CalendarPage.tsx` | `/calendar` | `logsApi.list` (one month via `localMonthRange`, one day via `localDayRange`), `logsApi.streak`, `actionsApi.list` |
 | `SettingsPage.tsx` | `/settings` | `useAuth` (user, logout) |
 | `ManageActionsPage.tsx` | `/manage-actions` | `actionsApi.list`, `actionsApi.remove` |
 | `CreateActionPage.tsx` | `/create` | `actionsApi.create` |
