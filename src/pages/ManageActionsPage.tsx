@@ -7,6 +7,7 @@ import BottomNav from '../components/BottomNav';
 import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
+import { actionIcon } from '../lib/icons';
 
 export const ManageActionsPage: React.FC = () => {
     useRequireAuth();
@@ -17,8 +18,8 @@ export const ManageActionsPage: React.FC = () => {
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const loading = list.loading;
 
-    const handleDelete = async (id: string) => {
-        if (!window.confirm('Delete this action? This cannot be undone.')) return;
+    const handleDelete = async (id: string, name: string) => {
+        if (!window.confirm(`Delete "${name}"? This cannot be undone. Logs you recorded for it stay in your history but will show as Quick Log.`)) return;
         setDeletingId(id);
         await remove.run(async () => {
             await actionsApi.remove(id);
@@ -103,7 +104,7 @@ export const ManageActionsPage: React.FC = () => {
                                 {filtered.map((action) => (
                                     <div key={action.id} className="bg-white dark:bg-primary/5 border border-slate-100 dark:border-primary/10 rounded-xl p-4 flex items-center gap-4 shadow-sm group">
                                         <div className="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg">
-                                            <span className="material-symbols-outlined text-primary">{action.icon}</span>
+                                            <span className="material-symbols-outlined text-primary">{actionIcon(action.icon)}</span>
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-semibold text-base truncate">{action.name}</h3>
@@ -111,7 +112,8 @@ export const ManageActionsPage: React.FC = () => {
                                                 {action.remindersEnabled ? `Daily • ${action.reminderTime}` : 'No reminder set'}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {/* Hidden until hover only where hover exists; touch screens always show them */}
+                                        <div className="flex items-center gap-1 [@media(hover:hover)]:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                                             <button
                                                 onClick={() => navigate(`/create?edit=${action.id}`)}
                                                 className="p-2 text-slate-400 hover:text-primary transition-colors"
@@ -119,7 +121,7 @@ export const ManageActionsPage: React.FC = () => {
                                                 <span className="material-symbols-outlined text-[22px]">edit</span>
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(action.id)}
+                                                onClick={() => handleDelete(action.id, action.name)}
                                                 disabled={deletingId === action.id}
                                                 className="p-2 text-slate-400 hover:text-red-400 transition-colors disabled:opacity-50"
                                             >

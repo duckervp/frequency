@@ -1,3 +1,5 @@
+import { localDateKey } from './time';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ApiUser {
@@ -204,9 +206,7 @@ export const logsApi = {
 
     /** Consecutive local days with a log, counting back from today */
     streak: (actionId?: string | null) => {
-        const now = new Date();
-        const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
-        const qs = new URLSearchParams({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone, today });
+        const qs = new URLSearchParams({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone, today: localDateKey() });
         if (actionId) qs.set('actionId', actionId);
         return apiFetch<{ streak: number }>(`/logs/streak?${qs.toString()}`);
     },

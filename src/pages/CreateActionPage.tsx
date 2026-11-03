@@ -3,14 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { actionsApi, errorMessage, renameNotFound, type ApiAction } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
 import { useLoad } from '../hooks/useLoad';
+import { ACTION_ICONS } from '../lib/icons';
 import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 
-const ICONS = [
-    'book', 'directions_run', 'self_improvement', 'code',
-    'bedtime', 'water_drop', 'restaurant', 'fitness_center'
-];
 const COLORS = [
     'bg-primary', 'bg-blue-400', 'bg-purple-400',
     'bg-orange-400', 'bg-pink-400', 'bg-yellow-400'
@@ -31,7 +28,10 @@ export const CreateActionPage: React.FC = () => {
     const action = useLoad(loadAction);
 
     if (action.data !== undefined) {
-        return <ActionForm key={editId ?? 'new'} editId={editId} initial={action.data} />;
+        // New Action can be opened prefilled (?name=&icon=), e.g. from a starter action on the dashboard
+        const icon = searchParams.get('icon');
+        const preset = { name: searchParams.get('name') ?? '', icon: icon && ACTION_ICONS.includes(icon) ? icon : undefined };
+        return <ActionForm key={editId ?? 'new'} editId={editId} initial={action.data} preset={preset} />;
     }
 
     return (
@@ -67,10 +67,16 @@ export const CreateActionPage: React.FC = () => {
     );
 };
 
-const ActionForm: React.FC<{ editId: string | null; initial: ApiAction | null }> = ({ editId, initial }) => {
+interface ActionFormProps {
+    editId: string | null;
+    initial: ApiAction | null;
+    preset: { name: string; icon?: string };
+}
+
+const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
     const navigate = useNavigate();
-    const [actionName, setActionName] = useState(initial?.name ?? '');
-    const [selectedIcon, setSelectedIcon] = useState(initial?.icon ?? 'book');
+    const [actionName, setActionName] = useState(initial?.name ?? preset.name);
+    const [selectedIcon, setSelectedIcon] = useState(initial?.icon ?? preset.icon ?? 'book');
     const [selectedColor, setSelectedColor] = useState(initial?.color ?? 'bg-primary');
     const [remindersEnabled, setRemindersEnabled] = useState(initial?.remindersEnabled ?? true);
     const [reminderTime, setReminderTime] = useState(initial?.reminderTime ?? '08:00');
@@ -147,7 +153,7 @@ const ActionForm: React.FC<{ editId: string | null; initial: ApiAction | null }>
                             <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Select Icon</h3>
                         </div>
                         <div className="grid grid-cols-4 gap-3">
-                            {ICONS.map(icon => (
+                            {ACTION_ICONS.map(icon => (
                                 <button
                                     key={icon}
                                     onClick={() => setSelectedIcon(icon)}

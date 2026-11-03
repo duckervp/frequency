@@ -8,6 +8,7 @@ import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { formatLogDay, withLocalTime } from '../lib/time';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
+import { actionIcon } from '../lib/icons';
 
 function parseISOToTimePicker(iso: string): { hour: number; minute: number; period: 'AM' | 'PM' } {
     const d = new Date(iso);
@@ -124,7 +125,7 @@ const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
             <div className="bg-slate-100 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 animate-fade-in">
                 <div className="size-12 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
                     <span className="material-symbols-outlined text-3xl">
-                        {entry.action?.icon ?? 'task_alt'}
+                        {actionIcon(entry.action?.icon)}
                     </span>
                 </div>
                 <div>

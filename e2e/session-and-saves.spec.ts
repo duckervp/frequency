@@ -30,17 +30,20 @@ test('Google sign-in with a stale token still stored keeps the new session', asy
     expect(await page.evaluate(() => localStorage.getItem('freq_token'))).toBe(fresh);
 });
 
-test('a wrong password on /login does not end a valid session', async ({ page }) => {
+test('a wrong password after logging out shows the error and stores no session', async ({ page }) => {
+    // A signed-in user can no longer reach the login form (it redirects), so the wrong-password
+    // path only happens without a session.
     const user = await registerViaUi(page);
-    const token = await page.evaluate(() => localStorage.getItem('freq_token'));
+    await page.goto('/settings');
+    await page.getByRole('button', { name: /log out/i }).click();
 
-    await page.goto('/login');
     await page.getByRole('button', { name: /continue with email/i }).click();
     await page.getByPlaceholder('Email address').fill(user.email);
     await page.getByPlaceholder('Password').fill('wrong-password');
     await page.getByRole('button', { name: 'Sign In', exact: true }).click();
     await expect(page.getByText(/invalid credentials/i)).toBeVisible();
-    expect(await page.evaluate(() => localStorage.getItem('freq_token'))).toBe(token);
+    await expect(page).toHaveURL(/\/login/);
+    expect(await page.evaluate(() => localStorage.getItem('freq_token'))).toBeNull();
 });
 
 test('regression: double tapping Done on New Action creates one action', async ({ page }) => {

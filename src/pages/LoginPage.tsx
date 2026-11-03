@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { errorMessage } from '../lib/api';
 
 type Mode = 'choose' | 'email-login' | 'email-register';
 
 export const LoginPage: React.FC = () => {
-    const { login, register, loginWithGoogle, isLoading } = useAuth();
+    const { token, login, register, loginWithGoogle, isLoading } = useAuth();
     const [mode, setMode] = useState<Mode>('choose');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -26,6 +27,9 @@ export const LoginPage: React.FC = () => {
         }
     };
 
+    // Already signed in (e.g. opening the app at / or /login): go straight to the app
+    if (token) return <Navigate to="/dashboard" replace />;
+
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
             <div className="relative flex h-full min-h-screen w-full max-w-md flex-col bg-background-light dark:bg-background-dark overflow-hidden shadow-2xl">
@@ -35,7 +39,7 @@ export const LoginPage: React.FC = () => {
                     <div className="w-full mb-8 mt-12">
                         <div
                             className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden rounded-xl min-h-[220px] bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent shadow-lg border border-primary/10"
-                            style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAhN19zQzIeEljR3KQqs_2IdyqEjEGHDABRZ1OnP_KXnSzOEqEYW_xL9BR8axdOd3PDgxd9jAwg8gxQjEW2gUIca-j1OD9qfhAQUF60helCTR02lZ-XjogcJDj7xDUA3tYwQzLqEAU3JDXFyiG-YgG_RotKLu65jzi7yWjp6XwD4a-vbxGHdGLvmjak7HZvpK4OJFXGr9qOH3fArUvaEDksc24yc1BRNDKWJWb7EK6oydKA3F3FFPK3FvS2rRjNegenlA5GKFWSq_Y")' }}
+                            style={{ backgroundImage: 'url("/images/login-hero.webp")' }}
                         />
                     </div>
 

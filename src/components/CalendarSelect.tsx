@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ApiAction } from '../lib/api';
+import { actionIcon } from '../lib/icons';
 
 interface CalendarSelectProps {
     actions: ApiAction[];
@@ -71,7 +72,7 @@ export const CalendarSelect: React.FC<CalendarSelectProps> = ({
                             onClick={() => { onChange(action.id); setOpen(false); }}
                             className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-primary/10 font-medium ${selectedActionId === action.id ? 'text-primary bg-primary/5 dark:bg-primary/10' : 'text-slate-700 dark:text-slate-200'}`}
                         >
-                            <span className="material-symbols-outlined text-xl">{action.icon}</span>
+                            <span className="material-symbols-outlined text-xl">{actionIcon(action.icon)}</span>
                             <span className="flex-1">{action.name}</span>
                             {selectedActionId === action.id && (
                                 <span className="material-symbols-outlined text-primary text-[18px]">check</span>

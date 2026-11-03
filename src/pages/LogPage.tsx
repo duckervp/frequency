@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
@@ -9,28 +9,27 @@ import BottomNav from '../components/BottomNav';
 import { logsApi, localDayRange, type DayRange } from '../lib/api';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useToday } from '../hooks/useToday';
+import { localDateKey } from '../lib/time';
+import { actionIcon } from '../lib/icons';
 
 // ── Date pill helpers ──────────────────────────────────────────────────────────
 
-function buildDatePills(count = 7) {
+/** The last `count` local days ending at `today` (YYYY-MM-DD), newest first */
+function buildDatePills(today: string, count = 7) {
+    const [y, m, d] = today.split('-').map(Number);
     const pills: { label: string; dateStr: string; range: DayRange }[] = [];
     for (let i = 0; i < count; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        // Local day, not UTC: toISOString() would shift the key for non-UTC users
-        const dateStr = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
-        const range = localDayRange(d.getFullYear(), d.getMonth(), d.getDate());
+        const day = new Date(y, m - 1, d - i);
         const label = i === 0
             ? 'Today'
             : i === 1
                 ? 'Yesterday'
-                : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        pills.push({ label, dateStr, range });
+                : day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        pills.push({ label, dateStr: localDateKey(day), range: localDayRange(day.getFullYear(), day.getMonth(), day.getDate()) });
     }
     return pills;
 }
-
-const DATE_PILLS = buildDatePills(7);
 
 // ── LogPage ───────────────────────────────────────────────────────────────────
 
@@ -38,16 +37,21 @@ export const LogPage: React.FC = () => {
     useRequireAuth();
     const navigate = useNavigate();
 
-    const [selectedDateStr, setSelectedDateStr] = useState(DATE_PILLS[0].dateStr);
+    // Pills follow the local date, so a tab left open past midnight moves on to the new day
+    const today = useToday();
+    const datePills = useMemo(() => buildDatePills(today), [today]);
+    // null = Today, so "Today" follows the date across midnight while a past day stays that day
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const selectedIndex = Math.max(0, datePills.findIndex(p => p.dateStr === selectedDate));
+    const selectedPill = datePills[selectedIndex];
     // Formatted here, not taken from /stats: the server formats dates in its own timezone
-    const todayLabel = `Today, ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-    const isToday = selectedDateStr === DATE_PILLS[0].dateStr;
+    const todayLabel = `Today, ${new Date(datePills[0].range.from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    const isToday = selectedIndex === 0;
 
     const loadDay = useCallback(async () => {
-        const range = DATE_PILLS.find(p => p.dateStr === selectedDateStr)!.range;
-        const [logs, stats] = await Promise.all([logsApi.list(range), logsApi.stats(DATE_PILLS[0].range)]);
+        const [logs, stats] = await Promise.all([logsApi.list(selectedPill.range), logsApi.stats(datePills[0].range)]);
         return { logs, totalToday: stats.totalToday };
-    }, [selectedDateStr]);
+    }, [selectedPill, datePills]);
     const day = useLoad(loadDay);
     const remove = useAsyncAction();
     const logs = day.data?.logs ?? [];
@@ -63,28 +67,23 @@ export const LogPage: React.FC = () => {
         });
     };
 
-    const handleDateSelect = (dateStr: string) => {
-        setSelectedDateStr(dateStr);
-    };
-
-    const selectedPill = DATE_PILLS.find(p => p.dateStr === selectedDateStr);
 
     return (
         <PageLayout header={<TopBar title={todayLabel} right={<TopBarButton icon="more_horiz" label="More" />} />}>
             <main className="flex-1 w-full pb-32">
                 <SummaryCard
-                    coverImage="https://lh3.googleusercontent.com/aida-public/AB6AXuAo8vgvS9AsNPunjyNQU2ACFlxYTiic6BMiK3j0EN7uSXKHbbN0JuhotMlWL5kvH_zqSEF7WTiR5eeEUp9GklWKHSd8AST7XRaLVxkI7uC2Z-gHy2md13_QaJzjpvQ3qxkU16Qf0erk-Ax8eu66CpfjmGfdRNPlAV5Wumq5yj_45O9PpJC-D6WJtlDmeJISntdpQ-vQKkBBx1BuW-ynKtITrCFbTXwHBWSRsf_3nLCULCdv52QTHBJwUMd7vhanJ-90p0vbdA7Iryg"
+                    coverImage="/images/log-summary.webp"
                     totalActions={day.data?.totalToday ?? 0}
                     loading={day.loading}
                 />
 
                 {/* Date pills */}
                 <div className="px-4 py-4 flex gap-2 overflow-x-auto hide-scrollbar">
-                    {DATE_PILLS.map((pill) => (
+                    {datePills.map((pill, i) => (
                         <button
                             key={pill.dateStr}
-                            onClick={() => handleDateSelect(pill.dateStr)}
-                            className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${selectedDateStr === pill.dateStr
+                            onClick={() => setSelectedDate(i === 0 ? null : pill.dateStr)}
+                            className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${selectedIndex === i
                                 ? 'bg-primary text-background-dark shadow-md shadow-primary/20'
                                 : 'bg-slate-200/60 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
                                 }`}
@@ -99,7 +98,7 @@ export const LogPage: React.FC = () => {
                         Action Log
                     </h3>
                     <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
-                        {selectedPill?.label ?? selectedDateStr}
+                        {selectedPill.label}
                     </span>
                 </div>
 
@@ -147,7 +146,7 @@ export const LogPage: React.FC = () => {
                                         })}
                                         note={entry.log.note ?? ''}
                                         category="Logged"
-                                        icon={entry.action?.icon ?? 'task_alt'}
+                                        icon={actionIcon(entry.action?.icon)}
                                         onEdit={() => navigate(`/edit?logId=${entry.log.id}`)}
                                         onDelete={() => handleDelete(entry.log.id)}
                                     />

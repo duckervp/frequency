@@ -31,6 +31,11 @@ function sameLocalDay(a: Date, b: Date): boolean {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
+/** YYYY-MM-DD of `d` in the user's local timezone (toISOString() would give the UTC day) */
+export function localDateKey(d = new Date()): string {
+    return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+}
+
 /** "Today, Nov 3" · "Yesterday, Nov 2" · "Oct 1" · "Dec 31, 2025" (other years) */
 export function formatLogDay(iso: string, now = new Date()): string {
     const d = new Date(iso);

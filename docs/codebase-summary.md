@@ -11,7 +11,6 @@ D:\vibe\freq\                Workspace root (not a git repo) — CLAUDE.md, .cla
 │   │   ├── components/     8 shared UI components
 │   │   ├── hooks/          useAuth context
 │   │   ├── lib/            api.ts (fetch wrapper + types)
-│   │   └── data/           mockData.ts
 │   ├── index.html
 │   ├── vite.config.ts
 │   └── tailwind.config.js
@@ -79,7 +78,6 @@ D:\vibe\freq\                Workspace root (not a git repo) — CLAUDE.md, .cla
 |---|---|
 | `hooks/useAuth.tsx` | Auth context: user, token, login, register, loginWithGoogle, logout |
 | `lib/api.ts` | Typed fetch wrapper + `authApi`, `actionsApi`, `logsApi` |
-| `data/mockData.ts` | Default action stubs (medicine, water, exercise, read, meditate) |
 
 ## Backend (`frequency-be/src/`)
 

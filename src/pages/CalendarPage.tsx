@@ -11,6 +11,7 @@ import ErrorState from '../components/ErrorState';
 import { logsApi, actionsApi, errorMessage, localDayRange, localMonthRange, type ApiLog } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
+import { actionIcon } from '../lib/icons';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -250,7 +251,7 @@ export const CalendarPage: React.FC = () => {
                                                 })}
                                                 note={entry.log.note ?? ''}
                                                 category="Logged"
-                                                icon={entry.action?.icon ?? 'task_alt'}
+                                                icon={actionIcon(entry.action?.icon)}
                                                 onEdit={() => navigate(`/edit?logId=${entry.log.id}`)}
                                                 onDelete={() => handleDelete(entry.log.id)}
                                             />

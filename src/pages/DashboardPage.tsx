@@ -7,6 +7,7 @@ import TopBar, { TopBarButton } from '../components/TopBar';
 import { actionsApi, logsApi } from '../lib/api';
 import { useAuth, useRequireAuth } from '../hooks/useAuth';
 import { useLoad } from '../hooks/useLoad';
+import { actionIcon } from '../lib/icons';
 
 const loadLast24h = () => logsApi.list({ last24h: true });
 
@@ -110,11 +111,14 @@ export const DashboardPage: React.FC = () => {
                                     return (
                                         <button
                                             key={action.id}
-                                            onClick={() => navigate(isReal ? `/register?actionId=${action.id}` : '/register')}
+                                            // A starter action does not exist yet: open New Action filled in with it
+                                            onClick={() => navigate(isReal
+                                                ? `/register?actionId=${action.id}`
+                                                : `/create?${new URLSearchParams({ name: action.name, icon: action.icon })}`)}
                                             className="flex flex-col items-start p-4 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 border border-transparent active:scale-95 transition-transform hover:bg-slate-200 dark:hover:bg-slate-800"
                                         >
                                             <div className={`size-10 rounded-lg ${('iconColor' in action) ? action.color : 'bg-primary/20'} ${'iconColor' in action ? action.iconColor : 'text-primary'} flex items-center justify-center mb-3`}>
-                                                <span className="material-symbols-outlined">{action.icon}</span>
+                                                <span className="material-symbols-outlined">{actionIcon(action.icon)}</span>
                                             </div>
                                             <span className="font-medium text-sm">{action.name}</span>
                                         </button>
@@ -170,7 +174,7 @@ export const DashboardPage: React.FC = () => {
                                             onClick={() => navigate(`/edit?logId=${entry.log.id}`)}
                                         >
                                             <span className="material-symbols-outlined text-primary text-xl">
-                                                {entry.action?.icon ?? 'task_alt'}
+                                                {actionIcon(entry.action?.icon)}
                                             </span>
                                             <div className="flex-1">
                                                 <p className="text-sm font-medium">{entry.action?.name ?? 'Quick Log'}</p>

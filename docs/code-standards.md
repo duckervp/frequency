@@ -48,6 +48,9 @@ const day = useLoad(loadDay);                             // reloads when range 
 - Mutations (delete, save) go through `useAsyncAction().run(...)` and show `error` with `<ErrorState />`; update local data with `setData` instead of refetching.
 - User-facing text for any caught error comes from `errorMessage(err)` in `lib/api.ts`.
 
+### Icons
+Every icon name lives in `src/lib/icons.ts`; `vite.config.ts` writes that list into the Material Symbols `icon_names` in `index.html` (the full font is 1 MB). Using a new icon means adding it there. Render an icon stored on an action with `actionIcon(name)`: it maps mobile names (`water-drop`) and shows a neutral icon for unknown names instead of text. `e2e/ui-fixes.spec.ts` fails if any icon renders as text. Images live in `public/images/` as WebP; do not hotlink.
+
 ### Page Layout
 Every signed-in page renders `PageLayout` with a `TopBar` (`src/components/PageLayout.tsx`, `src/components/TopBar.tsx`); do not build a page wrapper or header by hand.
 ```tsx
