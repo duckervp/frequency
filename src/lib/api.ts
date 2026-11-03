@@ -137,18 +137,33 @@ export const actionsApi = {
 
 // ─── Logs ─────────────────────────────────────────────────────────────────────
 
+/** An instant range [from, to) as ISO strings */
+export type DayRange = { from: string; to: string };
+
+/** Bounds of a calendar day in the user's local timezone (month is 0-based) */
+export function localDayRange(year: number, month: number, day: number): DayRange {
+    return {
+        from: new Date(year, month, day).toISOString(),
+        to: new Date(year, month, day + 1).toISOString(),
+    };
+}
+
 export const logsApi = {
-    list: (params?: { date?: string; last24h?: boolean }) => {
+    list: (params?: Partial<DayRange> & { last24h?: boolean }) => {
         const qs = new URLSearchParams();
-        if (params?.date) qs.set('date', params.date);
+        if (params?.from) qs.set('from', params.from);
+        if (params?.to) qs.set('to', params.to);
         if (params?.last24h) qs.set('last24h', 'true');
         return apiFetch<ApiLog[]>(`/logs${qs.toString() ? '?' + qs.toString() : ''}`);
     },
 
     get: (id: string) => apiFetch<ApiLog>(`/logs/${id}`),
 
-    stats: () =>
-        apiFetch<{ totalToday: number; dateInfo: string }>('/logs/stats'),
+    /** `today` is the local day's range, so the count follows the user's timezone */
+    stats: (today: DayRange) =>
+        apiFetch<{ totalToday: number; dateInfo: string }>(
+            `/logs/stats?${new URLSearchParams(today).toString()}`
+        ),
 
     create: (data: { actionId?: string; loggedAt: string; note?: string }) =>
         apiFetch<ApiLog>('/logs', { method: 'POST', body: JSON.stringify(data) }),

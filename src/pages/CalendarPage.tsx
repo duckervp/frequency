@@ -6,7 +6,7 @@ import CalendarSelect from '../components/CalendarSelect';
 import CalendarGrid from '../components/CalendarGrid';
 import CalendarStats from '../components/CalendarStats';
 import ActionItem from '../components/ActionItem';
-import { logsApi, actionsApi, type ApiLog, type ApiAction } from '../lib/api';
+import { logsApi, actionsApi, localDayRange, type ApiLog, type ApiAction } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -94,8 +94,7 @@ export const CalendarPage: React.FC = () => {
     const loadDayLogs = useCallback(async (d: number) => {
         setDayLoading(true);
         try {
-            const dateStr = toDateStr(year, month, d);
-            const rows = await logsApi.list({ date: dateStr });
+            const rows = await logsApi.list(localDayRange(year, month, d));
             setDayLogs(rows);
         } finally {
             setDayLoading(false);

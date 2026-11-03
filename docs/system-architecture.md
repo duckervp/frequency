@@ -48,9 +48,9 @@ https://<app>.vercel.app/api
 | POST | `/actions` | ✅ | Create action |
 | PUT | `/actions/:id` | ✅ | Update action |
 | DELETE | `/actions/:id` | ✅ | Delete action |
-| GET | `/logs` | ✅ | List logs (supports `?date=YYYY-MM-DD`, `?last24h=true`) |
+| GET | `/logs` | ✅ | List logs (supports `?from=ISO&to=ISO` — a local day's bounds from the client, `?last24h=true`; legacy `?date=YYYY-MM-DD` matches the UTC day) |
 | GET | `/logs/:id` | ✅ | Get single log |
-| GET | `/logs/stats` | ✅ | Today's count + date label |
+| GET | `/logs/stats` | ✅ | Today's count + date label; pass `?from=&to=` for the client's local today (without them: UTC day) |
 | POST | `/logs` | ✅ | Create log entry |
 | PUT | `/logs/:id` | ✅ | Update log entry |
 | DELETE | `/logs/:id` | ✅ | Delete log entry |

@@ -4,23 +4,25 @@ import Header from '../components/Header';
 import SummaryCard from '../components/SummaryCard';
 import ActionItem from '../components/ActionItem';
 import BottomNav from '../components/BottomNav';
-import { logsApi, type ApiLog } from '../lib/api';
+import { logsApi, localDayRange, type ApiLog, type DayRange } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
 
 // ── Date pill helpers ──────────────────────────────────────────────────────────
 
 function buildDatePills(count = 7) {
-    const pills: { label: string; dateStr: string }[] = [];
+    const pills: { label: string; dateStr: string; range: DayRange }[] = [];
     for (let i = 0; i < count; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
+        // Local day, not UTC: toISOString() would shift the key for non-UTC users
+        const dateStr = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+        const range = localDayRange(d.getFullYear(), d.getMonth(), d.getDate());
         const label = i === 0
             ? 'Today'
             : i === 1
                 ? 'Yesterday'
                 : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        pills.push({ label, dateStr });
+        pills.push({ label, dateStr, range });
     }
     return pills;
 }
@@ -35,18 +37,21 @@ export const LogPage: React.FC = () => {
 
     const [selectedDateStr, setSelectedDateStr] = useState(DATE_PILLS[0].dateStr);
     const [logs, setLogs] = useState<ApiLog[]>([]);
-    const [stats, setStats] = useState({ totalToday: 0, dateInfo: 'Today' });
+    const [totalToday, setTotalToday] = useState(0);
+    // Formatted here, not taken from /stats: the server formats dates in its own timezone
+    const todayLabel = `Today, ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
     const [loading, setLoading] = useState(true);
 
     const loadLogs = useCallback(async (dateStr: string) => {
         setLoading(true);
         try {
+            const range = DATE_PILLS.find(p => p.dateStr === dateStr)!.range;
             const [logsData, statsData] = await Promise.all([
-                logsApi.list({ date: dateStr }),
-                logsApi.stats(),
+                logsApi.list(range),
+                logsApi.stats(DATE_PILLS[0].range),
             ]);
             setLogs(logsData);
-            setStats(statsData);
+            setTotalToday(statsData.totalToday);
         } finally {
             setLoading(false);
         }
@@ -64,12 +69,12 @@ export const LogPage: React.FC = () => {
 
     return (
         <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
-            <Header title={stats.dateInfo} />
+            <Header title={todayLabel} />
 
             <main className="flex-1 overflow-y-auto hide-scrollbar max-w-md mx-auto w-full pb-32">
                 <SummaryCard
                     coverImage="https://lh3.googleusercontent.com/aida-public/AB6AXuAo8vgvS9AsNPunjyNQU2ACFlxYTiic6BMiK3j0EN7uSXKHbbN0JuhotMlWL5kvH_zqSEF7WTiR5eeEUp9GklWKHSd8AST7XRaLVxkI7uC2Z-gHy2md13_QaJzjpvQ3qxkU16Qf0erk-Ax8eu66CpfjmGfdRNPlAV5Wumq5yj_45O9PpJC-D6WJtlDmeJISntdpQ-vQKkBBx1BuW-ynKtITrCFbTXwHBWSRsf_3nLCULCdv52QTHBJwUMd7vhanJ-90p0vbdA7Iryg"
-                    totalActions={stats.totalToday}
+                    totalActions={totalToday}
                     loading={loading}
                 />
 
