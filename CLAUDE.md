@@ -5,8 +5,17 @@ Vite + React 19 web client for Frequency — the **primary** client. New feature
 
 - Dev: `npm run dev` → http://localhost:5173. `.env.local` sets `VITE_API_URL=http://localhost:3001/api` (local BE; no Vite proxy). The deployed BE URL is kept there commented out. Restart the dev server after changing `.env.local`.
 - Local login: use **email + password**. Google OAuth redirects back to the deployed BE, so it does not work against the local BE.
-- Verify: `npm run build` and `npm run lint`
+- Verify: `npm run build`, `npm run lint` and `npm run test:e2e`
   - Known baseline: lint reports 2 `react-refresh/only-export-components` errors in `src/hooks/useAuth.tsx`. Don't add new ones.
+
+## E2E tests (Playwright)
+
+- `npm run test:e2e` (or `test:e2e:ui`) — specs in `e2e/`, Chromium only.
+- `playwright.config.ts` starts its own servers on test ports: BE **:3101** via `npm --prefix ../frequency-be run test:server` (fresh local SQLite DB, never Turso) and Vite **:5174** with `VITE_API_URL=http://localhost:3101/api`. Dev servers on 3001/5173 can keep running.
+- Needs `../frequency-be` checked out next to this repo.
+- Use `registerViaUi()` from `e2e/helpers.ts` for a fresh user per test (unique email) — tests must not depend on each other's data.
+- Google OAuth is not covered by e2e (needs the deployed BE).
+- Every bug fix that is visible in the UI gets an e2e spec that fails before the fix.
 
 ## Layout
 
