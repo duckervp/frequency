@@ -94,6 +94,8 @@ test.describe('log times in UTC+7', () => {
         await picker(page).hourUp.click();
         await page.getByRole('button', { name: /Save Changes/ }).click();
         await expect.poll(() => getLoggedAt(page, headers, older)).toBe('2026-10-01T03:00:00.000Z');
+        // Saving navigates back; let that finish so the next goto is not aborted
+        await expect(page).not.toHaveURL(/\/edit/);
 
         // Today's log: 6 AM → 6 PM would be in the future
         await page.goto(`/edit?logId=${today}`);
