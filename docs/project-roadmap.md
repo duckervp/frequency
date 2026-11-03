@@ -21,6 +21,10 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [x] Web Edit page labelled every log "Today, <date>". Now "Today / Yesterday / Oct 1 / Dec 31, 2025" (`formatLogDay`), and refuses a time in the future; `e2e/log-time.spec.ts`
 - [x] BE log lists came back in insertion order. `GET /logs` (all modes) now returns newest `loggedAt` first; regression tests in BE `test/logs.test.ts` ("list order"). Visible change on web and existing mobile builds as soon as the BE deploys
 - [x] Calendar streak ignored the "Tracked Action" filter and always counted all actions, while the grid and month total were filtered. Web `CalendarPage.tsx` and mobile `calendar.tsx` now filter the streak too; regression spec `e2e/calendar-streak.spec.ts` ("streak follows the selected action filter"). Mobile needs a new build to reach the phone
+- [x] An expired or invalid token (JWT lasts 7 days) left web users on a dashboard of default stub actions with no redirect. A 401 for the current token on a non-`/auth` request now logs out (`setUnauthorizedHandler` in `src/lib/api.ts`, web and mobile; mobile needs a new EAS build). The web Google `#token=` is now stored before the page fetches, so a first Google login no longer loads the dashboard without a token. Regression spec `e2e/session-and-saves.spec.ts`
+- [x] Web New Action "Done" header button had no saving guard, so a double tap created duplicate actions; `e2e/session-and-saves.spec.ts`
+- [x] Deleting a log on the Log page (web and mobile) did not lower "Total actions today"; `e2e/session-and-saves.spec.ts`
+- [ ] Pages call the API without `.catch`: a failed request (network, 5xx) shows empty or default data with no error message, and leaves uncaught promise rejections in the console. Delete buttons on Log, Calendar and Edit have no error handling either
 - [ ] Product question: the calendar streak is 0 until something is logged today, even after a run of previous days
 - [ ] Web lint: 2 `react-refresh/only-export-components` errors in `src/hooks/useAuth.tsx`
 - [ ] BE has no migration history (DB created with `db:push`) — baseline migrations before using `db:migrate`
