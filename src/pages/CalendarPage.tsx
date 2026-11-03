@@ -130,14 +130,14 @@ export const CalendarPage: React.FC = () => {
     }, [monthLogs, year, month, filterActionId]);
 
     const currentStreak = React.useMemo(() => {
-        // Build a map of date → count from all logs (no action filter for streak calculation)
         const byDay = new Map<string, number>();
         monthLogs.forEach((entry) => {
+            if (filterActionId && entry.log.actionId !== filterActionId) return;
             const key = toLocalDateKey(new Date(entry.log.loggedAt));
             byDay.set(key, (byDay.get(key) ?? 0) + 1);
         });
         return computeStreak(byDay);
-    }, [monthLogs]);
+    }, [monthLogs, filterActionId]);
 
     // ── Filtered day logs ─────────────────────────────────────────────────────
     const filteredDayLogs = React.useMemo(() => {

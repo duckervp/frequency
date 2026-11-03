@@ -20,6 +20,7 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [x] Web Register logged a picked time later than now in the future (e.g. 11:30 PM picked at 00:15 → tonight). Now uses the previous day (`src/lib/time.ts` `pickedTimeToISO`); regression spec `e2e/log-time.spec.ts`
 - [x] Web Edit page labelled every log "Today, <date>". Now "Today / Yesterday / Oct 1 / Dec 31, 2025" (`formatLogDay`), and refuses a time in the future; `e2e/log-time.spec.ts`
 - [x] BE log lists came back in insertion order. `GET /logs` (all modes) now returns newest `loggedAt` first; regression tests in BE `test/logs.test.ts` ("list order"). Visible change on web and existing mobile builds as soon as the BE deploys
+- [x] Calendar streak ignored the "Tracked Action" filter and always counted all actions, while the grid and month total were filtered. Web `CalendarPage.tsx` and mobile `calendar.tsx` now filter the streak too; regression spec `e2e/calendar-streak.spec.ts` ("streak follows the selected action filter"). Mobile needs a new build to reach the phone
 - [ ] Product question: the calendar streak is 0 until something is logged today, even after a run of previous days
 - [ ] Web lint: 2 `react-refresh/only-export-components` errors in `src/hooks/useAuth.tsx`
 - [ ] BE has no migration history (DB created with `db:push`) — baseline migrations before using `db:migrate`
