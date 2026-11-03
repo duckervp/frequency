@@ -11,7 +11,7 @@ JWT_SECRET=...                   # Secret for JWT signing (min 32 chars)
 GOOGLE_CLIENT_ID=...             # Google OAuth client ID
 GOOGLE_CLIENT_SECRET=...         # Google OAuth client secret
 APP_URL=https://<app>.vercel.app # Backend's own URL (used for redirect URIs)
-FRONTEND_URL=frequency://        # Deep link scheme for mobile OAuth callback
+FRONTEND_URL=https://<web-app>.vercel.app  # Google OAuth redirect target (web URL, or frequency:// for mobile)
 ALLOWED_ORIGINS=*                # CORS allowed origins
 ```
 
@@ -30,10 +30,13 @@ git push origin main
 
 ```bash
 cd frequency-be
-npm run db:generate   # Generate migration files from schema changes
-npm run db:push       # Push schema to Turso (dev)
-npm run db:migrate    # Run migrations
+npx drizzle-kit export   # Print schema as SQL — read-only sanity check
+npm run db:push          # Push schema changes to Turso (review the diff first)
+npm run db:generate      # Generate migration files from schema changes
+npm run db:migrate       # Run migrations
 ```
+
+> **Warning:** There is only one Turso database (local `.env` = production), and there is no migration history — the DB was created with `db:push`. The first `db:generate` will emit `CREATE TABLE` for tables that already exist; do not `db:migrate` it. Use `db:push` until migrations are baselined.
 
 ---
 
@@ -124,24 +127,19 @@ eas build --platform ios --profile preview
    - Bundle ID: `com.frequency.app` (must match `app.json`)
 5. Copy the **Client ID** → set as `EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS` in `.env.local`
 
-### Backend Update Required
-Update `FRONTEND_URL` on Vercel from the web URL to the mobile deep link scheme:
-```env
-FRONTEND_URL=frequency://
-```
+### Backend: `FRONTEND_URL`
+The Google OAuth callback in `routes/auth.ts` redirects to `${FRONTEND_URL}/dashboard#token=<jwt>`. Only one value is supported:
 
-The Google OAuth callback in `routes/auth.ts` redirects to:
-```
-frequency://dashboard#token=<jwt>
-```
+- Web (default, primary client): `FRONTEND_URL=https://<web-app>.vercel.app`
+- Mobile: `FRONTEND_URL=frequency://` → `frequency://dashboard#token=<jwt>`, handled by `expo-auth-session`
 
-This deep link is handled by `expo-auth-session` in the mobile app.
+Switching it to mobile breaks Google login on web, and vice versa. Supporting both needs a BE change (e.g. pass the target client in the OAuth `state`).
 
 ---
 
-## Web Frontend (`frequency/`) — Vercel (Legacy)
+## Web Frontend (`frequency/`) — Vercel
 
-> The web frontend is being replaced by the mobile app. It remains deployed as a reference.
+Primary client. Set `VITE_API_URL=https://<app>.vercel.app/api` in the Vercel project env.
 
 ```bash
 cd frequency

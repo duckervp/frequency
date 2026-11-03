@@ -1,9 +1,6 @@
 # frequency (web)
 
 Vite + React 19 web client for Frequency — the **primary** client. New features are built here (together with `../frequency-be`) first; `../frequency-mobile` is synced from this app afterwards. See `../CLAUDE.md` for the system overview.
-
-`docs/` still calls this app "legacy" — that is outdated.
-
 ## Commands
 
 - Dev: `npm run dev` → http://localhost:5173. `.env.local` sets `VITE_API_URL=http://localhost:3001/api` (local BE; no Vite proxy). The deployed BE URL is kept there commented out. Restart the dev server after changing `.env.local`.

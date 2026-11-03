@@ -3,17 +3,17 @@
 ## High-Level Diagram
 
 ```
-┌──────────────────────────────────┐
-│   frequency-mobile/ (iOS App)    │
-│   Expo SDK + React Native        │
-│   NativeWind v4 (Tailwind CSS)   │
-│   expo-router (file navigation)  │
-│   expo-secure-store (JWT token)  │
-│   expo-auth-session (Google OAuth│
-└────────────┬─────────────────────┘
-             │ HTTPS REST API
-             │ Bearer JWT
-┌────────────▼─────────────────────┐
+┌──────────────────────────────┐   ┌──────────────────────────────┐
+│ frequency/ (Web) — PRIMARY   │   │ frequency-mobile/ (iOS)      │
+│ React 19 + Vite              │   │ Expo 54 + React Native       │
+│ TailwindCSS 4                │   │ NativeWind 4, expo-router    │
+│ react-router-dom             │   │ expo-secure-store (JWT)      │
+│ localStorage (JWT)           │   │ synced from web              │
+│ Deployed: Vercel             │   │ EAS Build + Sideloadly       │
+└──────────────┬───────────────┘   └──────────────┬───────────────┘
+               │      HTTPS REST API, Bearer JWT   │
+               └────────────────┬──────────────────┘
+┌───────────────────────────────▼──┐
 │   frequency-be/ (Backend)        │
 │   Hono framework (TypeScript)    │
 │   Drizzle ORM                    │
@@ -69,7 +69,7 @@ Client                Backend                Google
   │◀──redirect #token=...│                      │
 ```
 
-JWT is signed with `JOSE` library. Token stored in `expo-secure-store` on mobile.
+JWT is signed with `JOSE` library. Token stored in `localStorage` (`freq_token`) on web and in `expo-secure-store` on mobile.
 
 ### Database Schema
 
@@ -102,7 +102,13 @@ action_logs
   created_at TEXT
 ```
 
+## Web App (`frequency/`)
+
+React Router SPA. Routes: `/login`, `/dashboard`, `/log`, `/calendar`, `/settings`, `/manage-actions`, `/create`, `/register?actionId=`, `/edit?logId=` — see `codebase-summary.md` for the page ↔ API table. Auth via `useAuth` context (`src/hooks/useAuth.tsx`), API calls via `src/lib/api.ts`.
+
 ## Mobile App (`frequency-mobile/`)
+
+Mirrors the web app; features are ported after they are finished on web.
 
 ### Navigation Structure (expo-router)
 
@@ -141,6 +147,12 @@ No global store — uses React Context for auth only:
 
 ## Environment Variables
 
+### Web (`frequency/.env.local`)
+```env
+VITE_API_URL=http://localhost:3001/api      # local BE (default when developing)
+# VITE_API_URL=https://<app>.vercel.app/api # deployed BE (needed for Google OAuth)
+```
+
 ### Mobile (`frequency-mobile/.env.local`)
 ```env
 EXPO_PUBLIC_API_URL=https://<app>.vercel.app/api
@@ -155,6 +167,8 @@ JWT_SECRET=...
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 APP_URL=https://<app>.vercel.app
-FRONTEND_URL=<deep-link-scheme>://
+FRONTEND_URL=<web URL or deep-link-scheme://>   # one client only for Google OAuth
 ALLOWED_ORIGINS=*
 ```
+
+Local `.env` points at the same Turso database as production.

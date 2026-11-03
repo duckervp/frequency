@@ -103,7 +103,7 @@ return c.json({ error: 'Human readable message' }, 400 | 401 | 404 | 409);
 ## Modularization Rules
 
 - Files >200 LOC should be split by concern
-- Current exceptions (web reference, pre-migration): `CalendarPage.tsx` (269 LOC), `CreateActionPage.tsx`, `LoginPage.tsx` — these are acceptable in web but should be modularized during mobile migration
+- Current exceptions: `CalendarPage.tsx` (269 LOC), `CreateActionPage.tsx`, `LoginPage.tsx` on web — split them when next touched
 - Mobile screens: keep screens thin (API calls + layout only); extract complex logic to custom hooks
 
 ## Error Handling

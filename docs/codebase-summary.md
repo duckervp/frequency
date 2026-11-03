@@ -3,8 +3,9 @@
 ## Repository Layout
 
 ```
-d:\antigravity\
-├── frequency/              Legacy web app (React + Vite) — reference only
+D:\vibe\freq\                Workspace root (not a git repo) — CLAUDE.md, .claude/launch.json
+├── frequency/              Web app (React + Vite) — primary client
+│   ├── docs/               System docs (this folder)
 │   ├── src/
 │   │   ├── pages/          9 page components
 │   │   ├── components/     8 shared UI components
@@ -17,8 +18,8 @@ d:\antigravity\
 │
 ├── frequency-be/           Backend API (Hono + Drizzle + Turso)
 │   └── src/
-│       ├── server.ts       Hono app entry
-│       ├── index.ts        Route registration + CORS
+│       ├── server.ts       Local Node server (port 3001)
+│       ├── index.ts        Hono app: route registration + CORS (Vercel entry)
 │       ├── routes/
 │       │   ├── auth.ts     Register, Login, Google OAuth, /me
 │       │   ├── actions.ts  CRUD actions
@@ -32,13 +33,18 @@ d:\antigravity\
 │           ├── jwt.ts      signToken / verifyToken
 │           └── id.ts       nanoid wrapper
 │
-└── frequency-mobile/       NEW React Native app (Expo) — active
+└── frequency-mobile/       iOS app (Expo) — synced from web
     ├── plans/
     │   └── react-native-migration-plan.md
-    └── app/                (to be created)
+    ├── app/                expo-router screens: (auth)/, (tabs)/, create, edit, register, manage-actions
+    └── src/
+        ├── components/     7 kebab-case components ported from web
+        ├── hooks/          use-auth.tsx (expo-secure-store)
+        ├── lib/            api.ts (fetch wrapper + types)
+        └── data/           mock-data.ts (DEFAULT_ACTIONS)
 ```
 
-## Web Frontend (`frequency/src/`) — Reference
+## Web Frontend (`frequency/src/`) — Primary
 
 ### Pages
 
@@ -81,8 +87,8 @@ d:\antigravity\
 
 | File | Purpose |
 |---|---|
-| `server.ts` | Hono server entry (port 3000) |
-| `index.ts` | Route registration, CORS config, `/health` |
+| `server.ts` | Local Node server (port 3001, `PORT` env) |
+| `index.ts` | Hono app (`basePath('/api')`), route registration, CORS config, `/health`; Vercel entry |
 | `routes/auth.ts` | register, login, Google OAuth, /me |
 | `routes/actions.ts` | List/create/update/delete actions |
 | `routes/logs.ts` | List/create/update/delete logs + stats |
@@ -102,9 +108,9 @@ d:\antigravity\
 6. Issues JWT → redirects to `FRONTEND_URL/dashboard#token=<jwt>`
 7. Frontend extracts token from URL hash, stores in localStorage (web) / secure-store (mobile)
 
-> **Mobile OAuth Change Needed:** The current redirect-to-hash approach won't work in a native app. Mobile will use `expo-auth-session` with a deep link callback instead.
+> **Limitation:** the callback redirects to a single `FRONTEND_URL` (web URL or the mobile deep link `frequency://`), so Google OAuth serves only one client at a time. The redirect URI is built from `APP_URL`, so OAuth does not work against a local BE — use email + password locally.
 
-## Design System (Web — for Mobile Reference)
+## Design System (Web — mirrored on mobile)
 
 | Token | Value |
 |---|---|
