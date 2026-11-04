@@ -72,6 +72,8 @@ The React Native migration plan (`frequency-mobile/plans/react-native-migration-
 
 When a web feature is finished, add a sync item here and port it to mobile.
 
+- [ ] Time picker: web `TimePicker` now edits one local `"HH:mm"` value (typed digits, hold an arrow to repeat, keyboard arrows, AM/PM buttons) and is used for the action reminder as well as Register/Edit log. Mobile `app/create.tsx` has no reminder time UI (always '08:00'); reuse `src/components/time-picker.tsx` there and add typed entry / hold-to-repeat to it. `e2e/time-picker.spec.ts`
+
 ---
 
 ## Completed ✅

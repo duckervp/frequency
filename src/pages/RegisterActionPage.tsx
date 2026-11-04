@@ -16,7 +16,6 @@ export const RegisterActionPage: React.FC = () => {
     const [searchParams] = useSearchParams();
     const actionId = searchParams.get('actionId');
 
-
     // null for a quick log (no actionId); an action that no longer exists is an error, not a quick log
     const loadAction = useCallback(
         async (): Promise<ApiAction | null> =>

@@ -8,6 +8,7 @@ import { ACTION_ICONS } from '../lib/icons';
 import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
+import TimePicker from '../components/TimePicker';
 import { ACTION_COLORS } from '../lib/colors';
 import { notificationState } from '../lib/notifications';
 
@@ -92,8 +93,7 @@ const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
                 icon: selectedIcon,
                 color: selectedColor,
                 remindersEnabled,
-                // A cleared time input gives '': keep the stored time rather than sending an invalid one
-                ...(reminderTime && { reminderTime }),
+                reminderTime,
             };
             if (editId) {
                 await actionsApi.update(editId, payload);
@@ -184,32 +184,22 @@ const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
                     {/* Reminders */}
                     <section className="flex flex-col gap-2">
                         <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1">Reminders</h3>
-                        <div className="flex flex-col bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-200 dark:divide-slate-700/50">
-                            <div
-                                className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800/70 transition-colors rounded-t-xl"
-                                onClick={() => setRemindersEnabled(!remindersEnabled)}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-slate-500">notifications</span>
-                                    <span className="text-base font-medium">Daily Notification</span>
-                                </div>
-                                <div className={`w-12 h-7 rounded-full relative transition-colors ${remindersEnabled ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}>
-                                    <div className={`absolute top-1 size-5 bg-white rounded-full shadow-sm transition-transform ${remindersEnabled ? 'right-1' : 'left-1'}`} />
-                                </div>
-                            </div>
-                            <div className={`flex items-center justify-between p-4 rounded-b-xl ${!remindersEnabled ? 'opacity-50 pointer-events-none' : ''}`}>
-                                <div className="flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-slate-500">schedule</span>
-                                    <span className="text-base font-medium">Set Time</span>
-                                </div>
-                                <input
-                                    type="time"
-                                    value={reminderTime}
-                                    onChange={(e) => setReminderTime(e.target.value)}
-                                    className="bg-transparent text-slate-500 dark:text-slate-300 text-base outline-none"
-                                />
-                            </div>
-                        </div>
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={remindersEnabled}
+                            className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800/70 transition-colors"
+                            onClick={() => setRemindersEnabled(!remindersEnabled)}
+                        >
+                            <span className="flex items-center gap-3">
+                                <span aria-hidden className="material-symbols-outlined text-slate-500">notifications</span>
+                                <span className="text-base font-medium">Daily Notification</span>
+                            </span>
+                            <span className={`w-12 h-7 rounded-full relative transition-colors ${remindersEnabled ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                                <span className={`absolute top-1 size-5 bg-white rounded-full shadow-sm transition-transform ${remindersEnabled ? 'right-1' : 'left-1'}`} />
+                            </span>
+                        </button>
+                        {remindersEnabled && <TimePicker value={reminderTime} onChange={setReminderTime} />}
                         {remindersEnabled && notificationState() !== 'on' && (
                             <p className="px-1 text-xs text-slate-500 dark:text-slate-400">
                                 Turn on Notifications in Settings to get this reminder. Reminders arrive while the app is open in a tab.

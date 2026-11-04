@@ -19,11 +19,10 @@ async function getLoggedAt(page: Page, headers: Record<string, string>, id: stri
     return (await res.json()).log.loggedAt as string;
 }
 
-// TimePicker buttons are named by their icon: [hour ▲, hour ▼, min ▲, min ▼, period ▲, period ▼]
 const picker = (page: Page) => ({
-    hourDown: page.getByRole('button', { name: 'keyboard_arrow_down' }).nth(0),
-    hourUp: page.getByRole('button', { name: 'keyboard_arrow_up' }).nth(0),
-    periodToggle: page.getByRole('button', { name: 'keyboard_arrow_up' }).nth(2),
+    hourDown: page.getByRole('button', { name: 'Decrease hour' }),
+    hourUp: page.getByRole('button', { name: 'Increase hour' }),
+    pm: page.getByRole('button', { name: 'PM', exact: true }),
 });
 
 test.describe('log times in UTC+7', () => {
@@ -36,7 +35,7 @@ test.describe('log times in UTC+7', () => {
 
         // Picker starts at 12:15 AM; set 11:15 PM — "last night"
         await picker(page).hourDown.click();
-        await picker(page).periodToggle.click();
+        await picker(page).pm.click();
         await page.getByRole('button', { name: /Save Action/ }).click();
         await expect(page).toHaveURL(/\/dashboard/);
 
@@ -100,7 +99,7 @@ test.describe('log times in UTC+7', () => {
         // Today's log: 6 AM → 6 PM would be in the future
         await page.goto(`/edit?logId=${today}`);
         await expect(page.getByText('Today, Nov 3', { exact: true })).toBeVisible();
-        await picker(page).periodToggle.click();
+        await picker(page).pm.click();
         await page.getByRole('button', { name: /Save Changes/ }).click();
         await expect(page.getByText(/can't be in the future/i)).toBeVisible();
         expect(await getLoggedAt(page, headers, today)).toBe('2026-11-02T23:00:00.000Z');
