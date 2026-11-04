@@ -1,29 +1,7 @@
-import {
-    createContext,
-    useContext,
-    useState,
-    useEffect,
-    useCallback,
-    type ReactNode,
-} from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, setUnauthorizedHandler, type ApiUser } from '../lib/api';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface AuthContextValue {
-    user: ApiUser | null;
-    token: string | null;
-    isLoading: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string, name: string) => Promise<void>;
-    loginWithGoogle: () => void;
-    logout: () => void;
-}
-
-// ─── Context ──────────────────────────────────────────────────────────────────
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import { AuthContext } from '../hooks/useAuth';
 
 const TOKEN_KEY = 'freq_token';
 const USER_KEY = 'freq_user';
@@ -127,17 +105,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 }
 
-export function useAuth(): AuthContextValue {
-    const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
-    return ctx;
-}
-
-/** Guard: redirect to /login if no token */
-export function useRequireAuth() {
-    const { token } = useAuth();
-    const navigate = useNavigate();
-    useEffect(() => {
-        if (!token) navigate('/login', { replace: true });
-    }, [token, navigate]);
-}
+export default AuthProvider;
