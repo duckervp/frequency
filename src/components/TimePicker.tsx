@@ -1,12 +1,8 @@
 import React from 'react';
 
 interface TimePickerProps {
-    hour: number;       // 1–12
-    minute: number;     // 0–59
-    period: 'AM' | 'PM';
-    onHourChange: (h: number) => void;
-    onMinuteChange: (m: number) => void;
-    onPeriodChange: (p: 'AM' | 'PM') => void;
+    value: string; // "HH:mm", 24h; shown as 12h with AM/PM
+    onChange: (value: string) => void;
 }
 
 interface SpinColumnProps {
@@ -38,10 +34,16 @@ const SpinColumn: React.FC<SpinColumnProps> = ({ label, value, onUp, onDown, bor
     </div>
 );
 
-export const TimePicker: React.FC<TimePickerProps> = ({
-    hour, minute, period, onHourChange, onMinuteChange, onPeriodChange,
-}) => {
-    const pad = (n: number) => String(n).padStart(2, '0');
+const pad = (n: number) => String(n).padStart(2, '0');
+
+export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange }) => {
+    const [hours, minute] = value.split(':').map(Number);
+    const hour = hours % 12 || 12;
+    const period: 'AM' | 'PM' = hours < 12 ? 'AM' : 'PM';
+    const set = (h: number, m: number, p: 'AM' | 'PM') => onChange(`${pad((h % 12) + (p === 'PM' ? 12 : 0))}:${pad(m)}`);
+    const onHourChange = (h: number) => set(h, minute, period);
+    const onMinuteChange = (m: number) => set(hour, m, period);
+    const onPeriodChange = (p: 'AM' | 'PM') => set(hour, minute, p);
 
     return (
         <div className="bg-slate-100 dark:bg-slate-900/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">

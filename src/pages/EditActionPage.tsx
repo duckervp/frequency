@@ -6,19 +6,10 @@ import { ApiError, errorMessage, logsApi, type ApiLog } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
 import { useGoBack } from '../hooks/useGoBack';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
-import { formatLogDay, withLocalTime } from '../lib/time';
+import { formatLogDay, timeOfDay, withLocalTime } from '../lib/time';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 import ActionIcon from '../components/ActionIcon';
-
-function parseISOToTimePicker(iso: string): { hour: number; minute: number; period: 'AM' | 'PM' } {
-    const d = new Date(iso);
-    const h24 = d.getHours();
-    const minute = d.getMinutes();
-    const period: 'AM' | 'PM' = h24 < 12 ? 'AM' : 'PM';
-    const hour = h24 % 12 || 12;
-    return { hour, minute, period };
-}
 
 export const EditActionPage: React.FC = () => {
     useRequireAuth();
@@ -91,16 +82,13 @@ export const EditActionPage: React.FC = () => {
 /** The form starts from the loaded log, so it never shows placeholder values while loading */
 const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
     const goBack = useGoBack('/dashboard');
-    const initial = parseISOToTimePicker(entry.log.loggedAt);
     const [note, setNote] = useState(entry.log.note ?? '');
-    const [hour, setHour] = useState(initial.hour);
-    const [minute, setMinute] = useState(initial.minute);
-    const [period, setPeriod] = useState<'AM' | 'PM'>(initial.period);
+    const [time, setTime] = useState(() => timeOfDay(new Date(entry.log.loggedAt)));
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
 
     const handleSave = async () => {
-        const loggedAt = withLocalTime(entry.log.loggedAt, hour, minute, period);
+        const loggedAt = withLocalTime(entry.log.loggedAt, time);
         if (loggedAt > new Date()) {
             setError("The time can't be in the future");
             return;
@@ -137,14 +125,7 @@ const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
                     <span className="material-symbols-outlined text-primary text-xl">schedule</span>
                     <h2 className="text-base font-bold uppercase tracking-wider">Log Time</h2>
                 </div>
-                <TimePicker
-                    hour={hour}
-                    minute={minute}
-                    period={period}
-                    onHourChange={setHour}
-                    onMinuteChange={setMinute}
-                    onPeriodChange={setPeriod}
-                />
+                <TimePicker value={time} onChange={setTime} />
                 <p className="text-xs text-slate-500 dark:text-slate-400 italic">Adjust the time this action was performed.</p>
             </section>
 

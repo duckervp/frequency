@@ -6,7 +6,7 @@ import { actionsApi, errorMessage, logsApi, renameNotFound, type ApiAction } fro
 import { useRequireAuth } from '../hooks/useAuth';
 import { useGoBack } from '../hooks/useGoBack';
 import { useLoad } from '../hooks/useLoad';
-import { pickedTimeToISO } from '../lib/time';
+import { pickedTimeToISO, timeOfDay } from '../lib/time';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 
@@ -16,9 +16,6 @@ export const RegisterActionPage: React.FC = () => {
     const [searchParams] = useSearchParams();
     const actionId = searchParams.get('actionId');
 
-    const now = new Date();
-    const initHour = now.getHours() % 12 || 12;
-    const initPeriod: 'AM' | 'PM' = now.getHours() < 12 ? 'AM' : 'PM';
 
     // null for a quick log (no actionId); an action that no longer exists is an error, not a quick log
     const loadAction = useCallback(
@@ -31,9 +28,7 @@ export const RegisterActionPage: React.FC = () => {
     const loading = actionLoad.loading;
 
     const [notes, setNotes] = useState('');
-    const [hour, setHour] = useState(initHour);
-    const [minute, setMinute] = useState(now.getMinutes());
-    const [period, setPeriod] = useState<'AM' | 'PM'>(initPeriod);
+    const [time, setTime] = useState(() => timeOfDay());
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const canSave = !saving && !loading && !actionLoad.error;
@@ -45,7 +40,7 @@ export const RegisterActionPage: React.FC = () => {
         try {
             await logsApi.create({
                 actionId: action?.id,
-                loggedAt: pickedTimeToISO(hour, minute, period),
+                loggedAt: pickedTimeToISO(time),
                 note: notes,
             });
             goBack();
@@ -99,14 +94,7 @@ export const RegisterActionPage: React.FC = () => {
                         <span className="material-symbols-outlined text-sm">schedule</span>
                         Set Time
                     </h3>
-                    <TimePicker
-                        hour={hour}
-                        minute={minute}
-                        period={period}
-                        onHourChange={setHour}
-                        onMinuteChange={setMinute}
-                        onPeriodChange={setPeriod}
-                    />
+                    <TimePicker value={time} onChange={setTime} />
                     <p className="text-slate-500 dark:text-slate-400 text-xs mt-2 text-center italic">
                         Defaulted to current time
                     </p>

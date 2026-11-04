@@ -1,10 +1,14 @@
 // Local-time helpers for log timestamps. All "day" logic uses the user's local timezone;
 // values sent to the API are ISO instants (UTC, with Z).
 
-export type Period = 'AM' | 'PM';
+/** Local "HH:mm" (24h) of `d`, the value TimePicker edits */
+export function timeOfDay(d = new Date()): string {
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
 
-function to24h(hour: number, period: Period): number {
-    return (hour % 12) + (period === 'PM' ? 12 : 0);
+function setLocalTime(d: Date, time: string) {
+    const [hours, minutes] = time.split(':').map(Number);
+    d.setHours(hours, minutes, 0, 0);
 }
 
 /**
@@ -13,17 +17,17 @@ function to24h(hour: number, period: Period): number {
  * the user means the previous day.
  * DST note: a picked time that does not exist on a spring-forward day shifts by an hour (not an issue in UTC+7).
  */
-export function pickedTimeToISO(hour: number, minute: number, period: Period, now = new Date()): string {
+export function pickedTimeToISO(time: string, now = new Date()): string {
     const d = new Date(now);
-    d.setHours(to24h(hour, period), minute, 0, 0);
+    setLocalTime(d, time);
     if (d > now) d.setDate(d.getDate() - 1);
     return d.toISOString();
 }
 
 /** Same local day as `iso`, at the picked time (Edit page keeps the log's date). */
-export function withLocalTime(iso: string, hour: number, minute: number, period: Period): Date {
+export function withLocalTime(iso: string, time: string): Date {
     const d = new Date(iso);
-    d.setHours(to24h(hour, period), minute, 0, 0);
+    setLocalTime(d, time);
     return d;
 }
 
