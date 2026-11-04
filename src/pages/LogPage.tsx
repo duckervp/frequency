@@ -10,17 +10,17 @@ import { logsApi, localDayRange, type DayRange } from '../lib/api';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { useRequireAuth } from '../hooks/useAuth';
 import { useToday } from '../hooks/useToday';
-import { localDateKey } from '../lib/time';
+import { localDateKey, parseDateKey } from '../lib/time';
 import { actionIcon } from '../lib/icons';
 
 // ── Date pill helpers ──────────────────────────────────────────────────────────
 
 /** The last `count` local days ending at `today` (YYYY-MM-DD), newest first */
 function buildDatePills(today: string, count = 7) {
-    const [y, m, d] = today.split('-').map(Number);
+    const { year, month, day: date } = parseDateKey(today);
     const pills: { label: string; dateStr: string; range: DayRange }[] = [];
     for (let i = 0; i < count; i++) {
-        const day = new Date(y, m - 1, d - i);
+        const day = new Date(year, month, date - i);
         const label = i === 0
             ? 'Today'
             : i === 1

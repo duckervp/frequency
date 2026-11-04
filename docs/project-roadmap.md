@@ -36,8 +36,8 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [x] Dashboard starter actions (shown before the user has any) logged a "Quick Log"; they now open New Action prefilled with their name and icon
 - [x] Deleting an action now warns that its logs stay in history as "Quick Log"
 - [x] Assets: the Material Symbols font is requested with only the icons in `src/lib/icons.ts` (about 16 KB instead of 1 MB; the list includes the icons the mobile app stores, and `actionIcon()` maps `water-drop` style names), and the two hero images are local WebP files (37 KB instead of 698 KB hotlinked PNG). `e2e/ui-fixes.spec.ts` fails if any icon renders as text
-- [ ] Mobile twins of these web fixes, for the next sync: Log date pills built at module load (stale past midnight), starter actions on the dashboard go to Quick Log
-- [ ] Suspected: the web Calendar keeps the day it was opened on (today highlight, selected day) past midnight - `useToday()` could drive it
+- [ ] Mobile twins of these web fixes, for the next sync: Log date pills built at module load (stale past midnight), starter actions on the dashboard go to Quick Log, Calendar and its grid keep the day they were opened on (`calendar.tsx`, `calendar-grid.tsx`)
+- [x] The web Calendar kept the day and month it was opened on past local midnight (selected day, today highlight, streak). It now follows `useToday()` until the user picks a day or month; a pick survives the end of the month. `e2e/calendar-midnight.spec.ts`
 - [ ] Product question: the calendar streak is 0 until something is logged today, even after a run of previous days
 - [x] Web lint had 2 `react-refresh/only-export-components` errors: `AuthProvider` now lives in `src/components/AuthProvider.tsx`, the context and hooks in `src/hooks/useAuth.ts`; lint is clean
 - [x] BE had no migration history (DB created with `db:push`). Migrations now live in `frequency-be/src/db/migrations/` (`0000_baseline`), `test/migrations.test.ts` fails if they drift from the schema, and production is baselined with `npm run db:baseline` (runbook `docs/runbooks/2026-11-04-migration-baseline.md`)

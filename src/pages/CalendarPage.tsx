@@ -10,19 +10,15 @@ import ActionItem from '../components/ActionItem';
 import ErrorState from '../components/ErrorState';
 import { logsApi, actionsApi, errorMessage, localDayRange, localMonthRange, type ApiLog } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useToday } from '../hooks/useToday';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { actionIcon } from '../lib/icons';
+import { dateKey, parseDateKey } from '../lib/time';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function toDateStr(year: number, month: number, day: number): string {
-    const mm = String(month + 1).padStart(2, '0');
-    const dd = String(day).padStart(2, '0');
-    return `${year}-${mm}-${dd}`;
-}
-
 function monthKey(year: number, month: number): string {
-    return toDateStr(year, month, 1).slice(0, 7);
+    return dateKey(year, month, 1).slice(0, 7);
 }
 
 // ── CalendarPage ──────────────────────────────────────────────────────────────
@@ -31,12 +27,16 @@ export const CalendarPage: React.FC = () => {
     useRequireAuth();
     const navigate = useNavigate();
 
-    const today = new Date();
-
     // ── State ─────────────────────────────────────────────────────────────────
-    const [year, setYear] = useState(today.getFullYear());
-    const [month, setMonth] = useState(today.getMonth()); // 0-indexed
-    const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
+    // Month and day follow today (also past midnight) until the user picks something else
+    const today = useToday();
+    // Set by month navigation or by picking a day, so a pick survives the end of the month
+    const [pickedMonth, setPickedMonth] = useState<{ year: number; month: number } | null>(null);
+    const { year, month } = pickedMonth ?? parseDateKey(today); // month is 0-indexed
+    // 'today', a picked YYYY-MM-DD, or null when no day is selected
+    const [selection, setSelection] = useState<string | null>('today');
+    const selectedKey = selection === 'today' ? today : selection;
+    const selectedDay = selectedKey?.startsWith(monthKey(year, month)) ? parseDateKey(selectedKey).day : null;
 
     const actionsLoad = useLoad(actionsApi.list);
     const actions = actionsLoad.data ?? [];
@@ -89,7 +89,7 @@ export const CalendarPage: React.FC = () => {
     }, [year, month, loadMonth]);
 
     // Computed by the BE, so the streak never needs the log history on the client
-    const loadStreak = useCallback(() => logsApi.streak(filterActionId), [filterActionId]);
+    const loadStreak = useCallback(() => logsApi.streak(filterActionId, today), [filterActionId, today]);
     const streak = useLoad(loadStreak);
 
     const monthLogs = React.useMemo(() => logsByMonth.get(monthKey(year, month)) ?? [], [logsByMonth, year, month]);
@@ -148,18 +148,17 @@ export const CalendarPage: React.FC = () => {
 
     // ── Navigation ────────────────────────────────────────────────────────────
     const handlePrevMonth = () => {
-        setSelectedDay(null);
-        if (month === 0) { setMonth(11); setYear(y => y - 1); }
-        else setMonth(m => m - 1);
+        setSelection(null);
+        setPickedMonth(month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 });
     };
     const handleNextMonth = () => {
-        setSelectedDay(null);
-        if (month === 11) { setMonth(0); setYear(y => y + 1); }
-        else setMonth(m => m + 1);
+        setSelection(null);
+        setPickedMonth(month === 11 ? { year: year + 1, month: 0 } : { year, month: month + 1 });
     };
 
     const handleDaySelect = (day: number) => {
-        setSelectedDay(day === selectedDay ? null : day);
+        setSelection(day === selectedDay ? null : dateKey(year, month, day));
+        setPickedMonth({ year, month });
     };
 
     const selectedDateLabel = selectedDay !== null
@@ -186,6 +185,7 @@ export const CalendarPage: React.FC = () => {
                     month={month}
                     activeDays={activeDays}
                     selectedDay={selectedDay}
+                    today={today}
                     onDaySelect={handleDaySelect}
                     onPrevMonth={handlePrevMonth}
                     onNextMonth={handleNextMonth}

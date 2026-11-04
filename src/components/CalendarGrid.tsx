@@ -1,10 +1,12 @@
 import React from 'react';
+import { parseDateKey } from '../lib/time';
 
 interface CalendarGridProps {
     year: number;
     month: number; // 0-indexed (0 = Jan)
     activeDays: Set<number>; // day-of-month numbers that have logs
     selectedDay: number | null;
+    today: string; // YYYY-MM-DD, local
     onDaySelect: (day: number) => void;
     onPrevMonth: () => void;
     onNextMonth: () => void;
@@ -17,11 +19,10 @@ const MONTH_NAMES = [
 ];
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({
-    year, month, activeDays, selectedDay, onDaySelect, onPrevMonth, onNextMonth,
+    year, month, activeDays, selectedDay, today, onDaySelect, onPrevMonth, onNextMonth,
 }) => {
-    const today = new Date();
-    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
-    const todayDay = isCurrentMonth ? today.getDate() : -1;
+    const t = parseDateKey(today);
+    const todayDay = t.year === year && t.month === month ? t.day : -1;
 
     // Day of week the 1st falls on (0=Sun)
     const firstDow = new Date(year, month, 1).getDay();

@@ -36,6 +36,17 @@ export function localDateKey(d = new Date()): string {
     return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
 }
 
+/** Year, 0-based month and day of a YYYY-MM-DD key */
+export function parseDateKey(key: string): { year: number; month: number; day: number } {
+    const [year, month, day] = key.split('-').map(Number);
+    return { year, month: month - 1, day };
+}
+
+/** YYYY-MM-DD of a calendar date (month is 0-based) */
+export function dateKey(year: number, month: number, day: number): string {
+    return localDateKey(new Date(year, month, day));
+}
+
 /** "Today, Nov 3" · "Yesterday, Nov 2" · "Oct 1" · "Dec 31, 2025" (other years) */
 export function formatLogDay(iso: string, now = new Date()): string {
     const d = new Date(iso);
