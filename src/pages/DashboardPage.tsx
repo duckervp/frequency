@@ -7,17 +7,17 @@ import TopBar, { TopBarButton } from '../components/TopBar';
 import { actionsApi, logsApi } from '../lib/api';
 import { useAuth, useRequireAuth } from '../hooks/useAuth';
 import { useLoad } from '../hooks/useLoad';
-import { actionIcon } from '../lib/icons';
+import ActionIcon from '../components/ActionIcon';
 
 const loadLast24h = () => logsApi.list({ last24h: true });
 
 // Default quick action stubs shown when user has no custom actions yet
 const DEFAULT_ACTIONS = [
-    { id: '__default_medicine', name: 'Take Medicine', icon: 'pill', color: 'bg-blue-500/20', iconColor: 'text-blue-500' },
-    { id: '__default_water', name: 'Drink Water', icon: 'water_drop', color: 'bg-cyan-500/20', iconColor: 'text-cyan-500' },
-    { id: '__default_exercise', name: 'Exercise', icon: 'fitness_center', color: 'bg-orange-500/20', iconColor: 'text-orange-500' },
-    { id: '__default_read', name: 'Read', icon: 'menu_book', color: 'bg-purple-500/20', iconColor: 'text-purple-500' },
-    { id: '__default_meditate', name: 'Meditate', icon: 'self_improvement', color: 'bg-teal-500/20', iconColor: 'text-teal-500' },
+    { id: '__default_medicine', name: 'Take Medicine', icon: 'pill', color: 'bg-blue-500' },
+    { id: '__default_water', name: 'Drink Water', icon: 'water_drop', color: 'bg-cyan-500' },
+    { id: '__default_exercise', name: 'Exercise', icon: 'fitness_center', color: 'bg-orange-500' },
+    { id: '__default_read', name: 'Read', icon: 'menu_book', color: 'bg-purple-500' },
+    { id: '__default_meditate', name: 'Meditate', icon: 'self_improvement', color: 'bg-teal-500' },
 ];
 
 export const DashboardPage: React.FC = () => {
@@ -29,12 +29,14 @@ export const DashboardPage: React.FC = () => {
     const logs = useLoad(loadLast24h);
     const [search, setSearch] = useState('');
 
-    // Default stubs only for a user who really has no actions, never after a failed load
-    const quickActions = actions.data && (actions.data.length > 0 ? actions.data.slice(0, 5) : DEFAULT_ACTIONS);
+    const q = search.trim().toLowerCase();
 
-    // Filter logs by search query (matches action name or note)
+    // Default stubs only for a user who really has no actions, never after a failed load.
+    // The search matches action names here and action names or notes in the logs below.
+    const quickActions = actions.data && (actions.data.length > 0 ? actions.data : DEFAULT_ACTIONS)
+        .filter((action) => !q || action.name.toLowerCase().includes(q));
+
     const filteredLogs = (logs.data ?? []).filter((entry) => {
-        const q = search.toLowerCase();
         if (!q) return true;
         return (
             entry.action?.name.toLowerCase().includes(q) ||
@@ -117,9 +119,7 @@ export const DashboardPage: React.FC = () => {
                                                 : `/create?${new URLSearchParams({ name: action.name, icon: action.icon })}`)}
                                             className="flex flex-col items-start p-4 rounded-xl bg-slate-200/50 dark:bg-slate-800/50 border border-transparent active:scale-95 transition-transform hover:bg-slate-200 dark:hover:bg-slate-800"
                                         >
-                                            <div className={`size-10 rounded-lg ${('iconColor' in action) ? action.color : 'bg-primary/20'} ${'iconColor' in action ? action.iconColor : 'text-primary'} flex items-center justify-center mb-3`}>
-                                                <span className="material-symbols-outlined">{actionIcon(action.icon)}</span>
-                                            </div>
+                                            <ActionIcon icon={action.icon} color={action.color} className="size-10 rounded-lg mb-3" />
                                             <span className="font-medium text-sm">{action.name}</span>
                                         </button>
                                     );
@@ -173,9 +173,7 @@ export const DashboardPage: React.FC = () => {
                                             className="flex items-center gap-3 p-3 rounded-lg bg-slate-200/30 dark:bg-slate-800/30 cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
                                             onClick={() => navigate(`/edit?logId=${entry.log.id}`)}
                                         >
-                                            <span className="material-symbols-outlined text-primary text-xl">
-                                                {actionIcon(entry.action?.icon)}
-                                            </span>
+                                            <ActionIcon icon={entry.action?.icon} color={entry.action?.color} className="size-9 rounded-full" iconClassName="text-xl" />
                                             <div className="flex-1">
                                                 <p className="text-sm font-medium">{entry.action?.name ?? 'Quick Log'}</p>
                                                 <p className="text-xs text-slate-500">

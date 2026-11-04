@@ -8,7 +8,7 @@ import BottomNav from '../components/BottomNav';
 import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
-import { actionIcon } from '../lib/icons';
+import ActionIcon from '../components/ActionIcon';
 
 export const ManageActionsPage: React.FC = () => {
     useRequireAuth();
@@ -105,9 +105,7 @@ export const ManageActionsPage: React.FC = () => {
                             <div className="space-y-3">
                                 {filtered.map((action) => (
                                     <div key={action.id} className="bg-white dark:bg-primary/5 border border-slate-100 dark:border-primary/10 rounded-xl p-4 flex items-center gap-4 shadow-sm group">
-                                        <div className="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg">
-                                            <span className="material-symbols-outlined text-primary">{actionIcon(action.icon)}</span>
-                                        </div>
+                                        <ActionIcon icon={action.icon} color={action.color} className="size-12 rounded-lg" />
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-semibold text-base truncate">{action.name}</h3>
                                             <p className="text-xs text-slate-500 dark:text-slate-400">

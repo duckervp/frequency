@@ -8,11 +8,8 @@ import { ACTION_ICONS } from '../lib/icons';
 import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
+import { ACTION_COLORS } from '../lib/colors';
 
-const COLORS = [
-    'bg-primary', 'bg-blue-400', 'bg-purple-400',
-    'bg-orange-400', 'bg-pink-400', 'bg-yellow-400'
-];
 
 export const CreateActionPage: React.FC = () => {
     useRequireAuth();
@@ -171,7 +168,7 @@ const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
                         <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest px-1">Category Color</h3>
                         <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-800">
                             <div className="flex gap-3">
-                                {COLORS.map(colorClass => (
+                                {ACTION_COLORS.map(colorClass => (
                                     <button
                                         key={colorClass}
                                         onClick={() => setSelectedColor(colorClass)}

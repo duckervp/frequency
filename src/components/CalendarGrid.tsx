@@ -23,6 +23,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 }) => {
     const t = parseDateKey(today);
     const todayDay = t.year === year && t.month === month ? t.day : -1;
+    // Logs cannot be in the future, so there is nothing to see past the current month
+    const isLatestMonth = year > t.year || (year === t.year && month >= t.month);
 
     // Day of week the 1st falls on (0=Sun)
     const firstDow = new Date(year, month, 1).getDay();
@@ -50,7 +52,8 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 </h3>
                 <button
                     onClick={onNextMonth}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-primary/10 rounded-lg transition-colors"
+                    disabled={isLatestMonth}
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-30 disabled:pointer-events-none"
                     aria-label="Next month"
                 >
                     <span className="material-symbols-outlined">chevron_right</span>

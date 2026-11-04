@@ -9,7 +9,7 @@ import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { formatLogDay, withLocalTime } from '../lib/time';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
-import { actionIcon } from '../lib/icons';
+import ActionIcon from '../components/ActionIcon';
 
 function parseISOToTimePicker(iso: string): { hour: number; minute: number; period: 'AM' | 'PM' } {
     const d = new Date(iso);
@@ -124,11 +124,7 @@ const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
         <>
             {/* Action Info Card */}
             <div className="bg-slate-100 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 animate-fade-in">
-                <div className="size-12 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                    <span className="material-symbols-outlined text-3xl">
-                        {actionIcon(entry.action?.icon)}
-                    </span>
-                </div>
+                <ActionIcon icon={entry.action?.icon} color={entry.action?.color} className="size-12 rounded-lg" iconClassName="text-3xl" />
                 <div>
                     <h3 className="font-bold text-lg">{entry.action?.name ?? 'Action Log'}</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-sm">{formatLogDay(entry.log.loggedAt)}</p>
@@ -165,21 +161,8 @@ const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                     />
-                    <div className="absolute bottom-3 right-3 text-[10px] text-slate-400 bg-background-light dark:bg-background-dark px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-800 pointer-events-none">
-                        Encrypted
-                    </div>
                 </div>
             </section>
-
-            {/* Info Banner */}
-            <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl">
-                <div className="flex gap-3">
-                    <span className="material-symbols-outlined text-primary shrink-0">info</span>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Updates to this log are synced across your devices.
-                    </p>
-                </div>
-            </div>
 
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 

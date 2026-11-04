@@ -1,11 +1,13 @@
 import React from 'react';
+import ActionIcon from './ActionIcon';
 
 interface ActionItemProps {
     title: string;
     time: string;
     note: string;
     category: string;
-    icon: string;
+    icon: string | null | undefined;
+    color: string | null | undefined;
     onEdit?: () => void;
     onDelete?: () => void;
 }
@@ -16,14 +18,13 @@ export const ActionItem: React.FC<ActionItemProps> = ({
     note,
     category,
     icon,
+    color,
     onEdit,
     onDelete
 }) => {
     return (
         <div className="flex gap-4 bg-transparent hover:bg-primary/5 px-4 py-4 items-start border-b border-primary/5 transition-colors group">
-            <div className="text-primary flex items-center justify-center rounded-xl bg-primary/10 shrink-0 size-12 border border-primary/20">
-                <span className="material-symbols-outlined">{icon}</span>
-            </div>
+            <ActionIcon icon={icon} color={color} className="size-12 rounded-xl" />
             <div className="flex flex-1 flex-col justify-center">
                 <div className="flex justify-between items-start w-full">
                     <p className="text-slate-900 dark:text-slate-100 text-base font-semibold">{title}</p>

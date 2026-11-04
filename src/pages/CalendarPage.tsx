@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
-import TopBar, { TopBarButton } from '../components/TopBar';
+import TopBar from '../components/TopBar';
 import BottomNav from '../components/BottomNav';
 import CalendarSelect from '../components/CalendarSelect';
 import CalendarGrid from '../components/CalendarGrid';
@@ -12,7 +12,6 @@ import { logsApi, actionsApi, errorMessage, localDayRange, localMonthRange, type
 import { useRequireAuth } from '../hooks/useAuth';
 import { useToday } from '../hooks/useToday';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
-import { actionIcon } from '../lib/icons';
 import { dateKey, parseDateKey } from '../lib/time';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -168,7 +167,7 @@ export const CalendarPage: React.FC = () => {
         : null;
 
     return (
-        <PageLayout header={<TopBar title="Frequency Tracker" right={<TopBarButton icon="more_horiz" label="More" />} />}>
+        <PageLayout header={<TopBar title="Frequency Tracker" />}>
             <main className="flex-1 w-full px-4 py-6 space-y-6 pb-32">
 
                 {/* Action filter */}
@@ -251,7 +250,8 @@ export const CalendarPage: React.FC = () => {
                                                 })}
                                                 note={entry.log.note ?? ''}
                                                 category="Logged"
-                                                icon={actionIcon(entry.action?.icon)}
+                                                icon={entry.action?.icon}
+                                                color={entry.action?.color}
                                                 onEdit={() => navigate(`/edit?logId=${entry.log.id}`)}
                                                 onDelete={() => handleDelete(entry.log.id)}
                                             />

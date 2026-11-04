@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
-import TopBar, { TopBarButton } from '../components/TopBar';
+import TopBar from '../components/TopBar';
 import SummaryCard from '../components/SummaryCard';
 import ActionItem from '../components/ActionItem';
 import BottomNav from '../components/BottomNav';
@@ -11,7 +11,6 @@ import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { useRequireAuth } from '../hooks/useAuth';
 import { useToday } from '../hooks/useToday';
 import { localDateKey, parseDateKey } from '../lib/time';
-import { actionIcon } from '../lib/icons';
 
 // ── Date pill helpers ──────────────────────────────────────────────────────────
 
@@ -69,7 +68,7 @@ export const LogPage: React.FC = () => {
 
 
     return (
-        <PageLayout header={<TopBar title={todayLabel} right={<TopBarButton icon="more_horiz" label="More" />} />}>
+        <PageLayout header={<TopBar title={todayLabel} />}>
             <main className="flex-1 w-full pb-32">
                 <SummaryCard
                     coverImage="/images/log-summary.webp"
@@ -146,7 +145,8 @@ export const LogPage: React.FC = () => {
                                         })}
                                         note={entry.log.note ?? ''}
                                         category="Logged"
-                                        icon={actionIcon(entry.action?.icon)}
+                                        icon={entry.action?.icon}
+                                        color={entry.action?.color}
                                         onEdit={() => navigate(`/edit?logId=${entry.log.id}`)}
                                         onDelete={() => handleDelete(entry.log.id)}
                                     />
