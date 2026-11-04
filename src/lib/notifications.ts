@@ -1,6 +1,6 @@
 // Browser notifications for action reminders. They only fire while a tab of the app is open
-// (there is no push server). iPhone is not supported yet: iOS only allows notifications for web
-// apps installed from a manifest, which the app does not have.
+// (there is no push server). On iPhone iOS only allows them once the app has been added to the
+// Home Screen from its manifest; that path has not been tested yet.
 
 export type NotificationState = 'on' | 'off' | 'blocked' | 'unsupported';
 

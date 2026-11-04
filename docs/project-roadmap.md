@@ -84,6 +84,7 @@ When a web feature is finished, add a sync item here and port it to mobile.
 - Mobile app: all screens ported from web
 - Claude Code workflow set up: `CLAUDE.md` per repo, `.claude/launch.json` dev servers, old agent skills removed
 - Fixed `drizzle.config.ts` paths (`api/db` → `src/db`)
+- [x] iPhone Home Screen app showed Safari controls on every page except the one it was added from: there was no manifest, so iOS scoped the app to that page. `public/manifest.webmanifest` sets `scope: "/"` and `start_url: "/dashboard"`, and the app now has its own icon (`public/logo.svg`, PNGs rendered from it). `e2e/web-app-manifest.spec.ts`
 
 ---
 
@@ -91,7 +92,7 @@ When a web feature is finished, add a sync item here and port it to mobile.
 
 ### Reminders / Notifications
 - Done (web): browser notifications at `reminderTime` while a tab of the app is open (`ReminderScheduler`, `public/sw.js`, Settings > Notifications). One per action per day across tabs, skipped when already logged. `e2e/reminders.spec.ts` (notification APIs faked; the real click and display were not tested in a browser)
-- iPhone: needs a web app manifest (`display: standalone`) and Add to Home Screen before iOS exposes notifications
+- iPhone: the manifest is in place, so after Add to Home Screen iOS should expose notifications; not tested on a device yet
 - Reminders with no tab open need Web Push: VAPID keys, a subscriptions table (migration + runbook) and a Vercel cron
 - Mobile: `expo-notifications`
 

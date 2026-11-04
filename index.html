@@ -2,7 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Without a manifest iOS scopes the home screen app to the page it was added from,
+         so every other route opened with Safari controls -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-title" content="Frequency" />
+    <meta name="theme-color" content="#f6f8f7" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Frequency App</title>
     <!-- Include Google Fonts -->
