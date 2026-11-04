@@ -16,18 +16,18 @@ test.describe('Calendar across local midnight in UTC+7', () => {
         const token = await page.evaluate(() => localStorage.getItem('freq_token'));
         await page.request.post(`${API_URL}/logs`, {
             headers: { Authorization: `Bearer ${token}` },
-            data: { loggedAt: '2026-11-03T03:00:00.000Z', note: 'done on Nov 3' }, // Nov 3, 10:00 local
+            data: { loggedAt: '2026-11-02T03:00:00.000Z', note: 'done on Nov 2' }, // Nov 2, 10:00 local
         });
 
         await page.goto('/calendar');
         await expect(page.getByRole('heading', { name: 'Tuesday, November 3' })).toBeVisible();
-        await expect(page.getByText('done on Nov 3')).toBeVisible();
+        // Nothing yet on Nov 3, but the run from yesterday is still alive until the day ends
         await expect(stat(page, 'Current Streak')).toHaveText('1');
 
         await page.clock.fastForward('02:00'); // Nov 4, 00:01 local
         await expect(page.getByRole('heading', { name: 'Wednesday, November 4' })).toBeVisible();
         await expect(page.getByText(/no logs recorded/i)).toBeVisible();
-        // Nothing logged on Nov 4 yet, so the streak counted back from the new today is 0
+        // Nov 3 passed without a log, so the run ended; only a refetch with the new today shows that
         await expect(stat(page, 'Current Streak')).toHaveText('0');
     });
 

@@ -148,19 +148,19 @@ test.describe('calendar month range in UTC+7', () => {
     test('deleting a log updates the month total and the streak', async ({ page }) => {
         await registerViaUi(page);
         await createLogs(page, [
-            '2026-11-02T01:00:00.000Z', // Nov 2, 08:00 local
+            '2026-10-31T01:00:00.000Z', // Oct 31, 08:00 local: a gap on Nov 1-2 ends that run
             '2026-11-03T01:00:00.000Z', // Nov 3, 08:00 local
         ]);
 
         await page.clock.setFixedTime(new Date('2026-11-03T03:00:00.000Z')); // Nov 3, 10:00 local
         await page.goto('/calendar');
-        await expect(total(page)).toHaveText('2');
-        await expect(streak(page)).toHaveText('2');
+        await expect(total(page)).toHaveText('1');
+        await expect(streak(page)).toHaveText('1');
 
         // Today is selected by default, so its log is listed
         page.once('dialog', (dialog) => dialog.accept());
         await page.getByRole('button', { name: 'delete' }).click();
-        await expect(total(page)).toHaveText('1');
+        await expect(total(page)).toHaveText('0');
         await expect(streak(page)).toHaveText('0');
     });
 });
