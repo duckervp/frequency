@@ -45,7 +45,8 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [ ] Google OAuth redirects to a single `FRONTEND_URL`, so it can only serve web *or* mobile at a time
 - [ ] Local BE uses the production Turso database — no separate dev DB
 - [ ] Mobile `api.ts` falls back to port 3000; local BE runs on 3001 (always set `EXPO_PUBLIC_API_URL`)
-- [ ] API types are duplicated by hand in web and mobile `src/lib/api.ts`
+- [x] API types were duplicated by hand in web and mobile. The contract now lives in `frequency-be/src/api-types.ts` (checked against the schema at compile time); web uses a generated copy (`npm run sync:api-types`, checked in CI)
+- [ ] Mobile: replace the hand-written types in `src/lib/api.ts` with the same generated copy of the BE contract when syncing
 
 ---
 

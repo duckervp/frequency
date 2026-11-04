@@ -21,7 +21,7 @@ Vite + React 19 web client for Frequency — the **primary** client. New feature
 
 - `src/pages/` — one component per route (`DashboardPage`, `LogPage`, `CalendarPage`, ...); the route ↔ API table is in `docs/codebase-summary.md`
 - `src/components/` — PascalCase shared components
-- `src/lib/api.ts` — fetch wrapper + API types; `src/hooks/useAuth.ts` — auth context and hooks (`AuthProvider` is in `src/components/`)
+- `src/lib/api.ts` — fetch wrapper; request/response types come from `src/lib/api-types.ts`, a generated copy of `../frequency-be/src/api-types.ts` (`npm run sync:api-types`, never edit it; CI fails if it is stale); `src/hooks/useAuth.ts` — auth context and hooks (`AuthProvider` is in `src/components/`)
 - `docs/` — system-wide docs (overview, architecture, code standards, design guidelines, roadmap, deployment)
 
 ## Conventions

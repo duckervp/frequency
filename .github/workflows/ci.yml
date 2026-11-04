@@ -30,6 +30,8 @@ jobs:
         working-directory: frequency
       - run: npx playwright install --with-deps chromium
         working-directory: frequency
+      - run: npm run sync:api-types -- --check
+        working-directory: frequency
       - run: npm run lint
         working-directory: frequency
       - run: npm run build

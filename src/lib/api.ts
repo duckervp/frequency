@@ -1,34 +1,12 @@
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface ApiUser {
-    id: string;
-    email: string;
-    name: string;
-    avatarUrl?: string | null;
-}
+import type {
+    ActionBody, ApiAction, ApiLog, ApiUser, AuthResponse, CreateLogBody, DeleteResponse, LoginBody, MeResponse,
+    RegisterBody, StatsResponse, StreakResponse, UpdateLogBody,
+} from './api-types';
 
-export interface ApiAction {
-    id: string;
-    userId: string;
-    name: string;
-    icon: string;
-    color: string;
-    remindersEnabled: boolean;
-    reminderTime: string | null;
-    createdAt: string;
-}
-
-export interface ApiLog {
-    log: {
-        id: string;
-        userId: string;
-        actionId: string | null;
-        loggedAt: string;
-        note: string | null;
-        createdAt: string;
-    };
-    action: ApiAction | null;
-}
+// Pages import these from here
+export type { ApiAction, ApiLog, ApiUser };
 
 // ─── Base fetch wrapper ───────────────────────────────────────────────────────
 
@@ -104,19 +82,19 @@ export function errorMessage(err: unknown): string {
 
 export const authApi = {
     register: (email: string, password: string, name: string) =>
-        apiFetch<{ token: string; user: ApiUser }>('/auth/register', {
+        apiFetch<AuthResponse>('/auth/register', {
             method: 'POST',
-            body: JSON.stringify({ email, password, name }),
+            body: JSON.stringify({ email, password, name } satisfies RegisterBody),
         }),
 
     login: (email: string, password: string) =>
-        apiFetch<{ token: string; user: ApiUser }>('/auth/login', {
+        apiFetch<AuthResponse>('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password } satisfies LoginBody),
         }),
 
     getMe: () =>
-        apiFetch<{ user: ApiUser }>('/auth/me'),
+        apiFetch<MeResponse>('/auth/me'),
 
     /** Redirect browser to Google OAuth — no fetch needed */
     loginWithGoogle: () => {
@@ -133,35 +111,20 @@ export const actionsApi = {
 
     get: (id: string) => apiFetch<ApiAction>(`/actions/${id}`),
 
-    create: (data: {
-        name: string;
-        icon?: string;
-        color?: string;
-        remindersEnabled?: boolean;
-        reminderTime?: string;
-    }) =>
+    create: (data: ActionBody) =>
         apiFetch<ApiAction>('/actions', {
             method: 'POST',
             body: JSON.stringify(data),
         }),
 
-    update: (
-        id: string,
-        data: Partial<{
-            name: string;
-            icon: string;
-            color: string;
-            remindersEnabled: boolean;
-            reminderTime: string;
-        }>
-    ) =>
+    update: (id: string, data: Partial<ActionBody>) =>
         apiFetch<ApiAction>(`/actions/${id}`, {
             method: 'PUT',
             body: JSON.stringify(data),
         }),
 
     remove: (id: string) =>
-        apiFetch<{ success: boolean }>(`/actions/${id}`, { method: 'DELETE' }),
+        apiFetch<DeleteResponse>(`/actions/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Logs ─────────────────────────────────────────────────────────────────────
@@ -198,7 +161,7 @@ export const logsApi = {
 
     /** `today` is the local day's range, so the count follows the user's timezone */
     stats: (today: DayRange) =>
-        apiFetch<{ totalToday: number; dateInfo: string }>(
+        apiFetch<StatsResponse>(
             `/logs/stats?${new URLSearchParams(today).toString()}`
         ),
 
@@ -206,18 +169,18 @@ export const logsApi = {
     streak: (actionId: string | null, today: string) => {
         const qs = new URLSearchParams({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone, today });
         if (actionId) qs.set('actionId', actionId);
-        return apiFetch<{ streak: number }>(`/logs/streak?${qs.toString()}`);
+        return apiFetch<StreakResponse>(`/logs/streak?${qs.toString()}`);
     },
 
-    create: (data: { actionId?: string; loggedAt: string; note?: string }) =>
+    create: (data: CreateLogBody) =>
         apiFetch<ApiLog>('/logs', { method: 'POST', body: JSON.stringify(data) }),
 
-    update: (id: string, data: { loggedAt?: string; note?: string }) =>
+    update: (id: string, data: UpdateLogBody) =>
         apiFetch<ApiLog>(`/logs/${id}`, {
             method: 'PUT',
             body: JSON.stringify(data),
         }),
 
     remove: (id: string) =>
-        apiFetch<{ success: boolean }>(`/logs/${id}`, { method: 'DELETE' }),
+        apiFetch<DeleteResponse>(`/logs/${id}`, { method: 'DELETE' }),
 };
