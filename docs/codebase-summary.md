@@ -76,7 +76,7 @@ D:\vibe\freq\                Workspace root (not a git repo) — CLAUDE.md, .cla
 
 | File | Purpose |
 |---|---|
-| `hooks/useAuth.tsx` | Auth context: user, token, login, register, loginWithGoogle, logout |
+| `hooks/useAuth.ts` + `components/AuthProvider.tsx` | Auth context: user, token, login, register, loginWithGoogle, logout |
 | `lib/api.ts` | Typed fetch wrapper + `authApi`, `actionsApi`, `logsApi` |
 
 ## Backend (`frequency-be/src/`)

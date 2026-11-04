@@ -13,7 +13,7 @@
 |---|---|---|
 | React components | PascalCase | `ActionItem.tsx`, `CalendarGrid.tsx` |
 | Mobile components | kebab-case | `action-item.tsx`, `calendar-grid.tsx` |
-| Hooks | camelCase with `use` prefix | `useAuth.tsx`, `use-auth.tsx` (mobile) |
+| Hooks | camelCase with `use` prefix | `useAuth.ts`, `use-auth.tsx` (mobile) |
 | Utility/lib files | camelCase | `api.ts`, `db.ts`, `jwt.ts` |
 | Pages (web) | PascalCase + `Page` suffix | `DashboardPage.tsx` |
 | Screens (mobile) | lowercase (expo-router) | `dashboard.tsx`, `login.tsx` |

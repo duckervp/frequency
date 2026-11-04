@@ -39,8 +39,9 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [ ] Mobile twins of these web fixes, for the next sync: Log date pills built at module load (stale past midnight), starter actions on the dashboard go to Quick Log
 - [ ] Suspected: the web Calendar keeps the day it was opened on (today highlight, selected day) past midnight - `useToday()` could drive it
 - [ ] Product question: the calendar streak is 0 until something is logged today, even after a run of previous days
-- [ ] Web lint: 2 `react-refresh/only-export-components` errors in `src/hooks/useAuth.tsx`
-- [ ] BE has no migration history (DB created with `db:push`) — baseline migrations before using `db:migrate`
+- [x] Web lint had 2 `react-refresh/only-export-components` errors: `AuthProvider` now lives in `src/components/AuthProvider.tsx`, the context and hooks in `src/hooks/useAuth.ts`; lint is clean
+- [x] BE had no migration history (DB created with `db:push`). Migrations now live in `frequency-be/src/db/migrations/` (`0000_baseline`), `test/migrations.test.ts` fails if they drift from the schema, and production is baselined with `npm run db:baseline` (runbook `docs/runbooks/2026-11-04-migration-baseline.md`)
+- [x] CI: GitHub Actions runs BE tsc + Vitest (`frequency-be`) and web lint + build + e2e with the BE checked out next to it (`frequency`) on every push and PR
 - [ ] Google OAuth redirects to a single `FRONTEND_URL`, so it can only serve web *or* mobile at a time
 - [ ] Local BE uses the production Turso database — no separate dev DB
 - [ ] Mobile `api.ts` falls back to port 3000; local BE runs on 3001 (always set `EXPO_PUBLIC_API_URL`)

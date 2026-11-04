@@ -106,7 +106,7 @@ action_logs
 
 ## Web App (`frequency/`)
 
-React Router SPA. Routes: `/login`, `/dashboard`, `/log`, `/calendar`, `/settings`, `/manage-actions`, `/create`, `/register?actionId=`, `/edit?logId=` — see `codebase-summary.md` for the page ↔ API table. Auth via `useAuth` context (`src/hooks/useAuth.tsx`), API calls via `src/lib/api.ts`.
+React Router SPA. Routes: `/login`, `/dashboard`, `/log`, `/calendar`, `/settings`, `/manage-actions`, `/create`, `/register?actionId=`, `/edit?logId=` — see `codebase-summary.md` for the page ↔ API table. Auth via `useAuth` context (`src/hooks/useAuth.ts`, provider in `src/components/AuthProvider.tsx`), API calls via `src/lib/api.ts`.
 
 ## Mobile App (`frequency-mobile/`)
 
