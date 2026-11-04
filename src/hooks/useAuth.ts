@@ -12,6 +12,8 @@ export interface AuthContextValue {
     register: (email: string, password: string, name: string) => Promise<void>;
     loginWithGoogle: () => void;
     logout: () => void;
+    /** After the profile changes: keeps the stored user in sync */
+    updateUser: (user: ApiUser) => void;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────

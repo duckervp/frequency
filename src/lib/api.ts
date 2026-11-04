@@ -1,8 +1,8 @@
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 import type {
-    ActionBody, ApiAction, ApiLog, ApiUser, AuthResponse, CreateLogBody, DeleteResponse, LoginBody, MeResponse,
-    RegisterBody, StatsResponse, StreakResponse, UpdateLogBody,
+    ActionBody, ApiAction, ApiLog, ApiUser, AuthResponse, ChangePasswordBody, CreateLogBody, LoginBody, MeResponse,
+    RegisterBody, SuccessResponse, UpdateProfileBody, StatsResponse, StreakResponse, UpdateLogBody,
 } from './api-types';
 
 // Pages import these from here
@@ -96,6 +96,12 @@ export const authApi = {
     getMe: () =>
         apiFetch<MeResponse>('/auth/me'),
 
+    updateProfile: (data: UpdateProfileBody) =>
+        apiFetch<MeResponse>('/auth/me', { method: 'PUT', body: JSON.stringify(data) }),
+
+    changePassword: (data: ChangePasswordBody) =>
+        apiFetch<SuccessResponse>('/auth/password', { method: 'PUT', body: JSON.stringify(data) }),
+
     /** Redirect browser to Google OAuth — no fetch needed */
     loginWithGoogle: () => {
         const url = `${BASE}/auth/google`;
@@ -124,7 +130,7 @@ export const actionsApi = {
         }),
 
     remove: (id: string) =>
-        apiFetch<DeleteResponse>(`/actions/${id}`, { method: 'DELETE' }),
+        apiFetch<SuccessResponse>(`/actions/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Logs ─────────────────────────────────────────────────────────────────────
@@ -182,5 +188,5 @@ export const logsApi = {
         }),
 
     remove: (id: string) =>
-        apiFetch<DeleteResponse>(`/logs/${id}`, { method: 'DELETE' }),
+        apiFetch<SuccessResponse>(`/logs/${id}`, { method: 'DELETE' }),
 };

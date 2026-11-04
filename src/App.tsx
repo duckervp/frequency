@@ -6,6 +6,7 @@ import LogPage from './pages/LogPage';
 import CalendarPage from './pages/CalendarPage';
 import CreateActionPage from './pages/CreateActionPage';
 import SettingsPage from './pages/SettingsPage';
+import ProfilePage from './pages/ProfilePage';
 import ManageActionsPage from './pages/ManageActionsPage';
 import RegisterActionPage from './pages/RegisterActionPage';
 import EditActionPage from './pages/EditActionPage';
@@ -22,6 +23,7 @@ function App() {
             <Route path="/log" element={<LogPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/manage-actions" element={<ManageActionsPage />} />
             <Route path="/create" element={<CreateActionPage />} />
             {/* /register?actionId=<id> */}

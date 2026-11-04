@@ -44,6 +44,8 @@ https://<app>.vercel.app/api
 | GET | `/auth/google` | ❌ | Redirect to Google OAuth |
 | GET | `/auth/google/callback` | ❌ | Google OAuth callback → redirects with `#token=...` |
 | GET | `/auth/me` | ✅ | Get current user profile |
+| PUT | `/auth/me` | yes | Change the display name; returns `{ user, hasPassword }` |
+| PUT | `/auth/password` | yes | Change the password (`currentPassword` required when the account has one) |
 | GET | `/actions` | ✅ | List user's actions |
 | GET | `/actions/:id` | yes | One of the user's actions (404 if missing or someone else's) |
 | POST | `/actions` | ✅ | Create action |

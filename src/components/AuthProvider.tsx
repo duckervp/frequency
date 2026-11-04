@@ -32,6 +32,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(u);
     }, []);
 
+    const updateUser = useCallback((u: ApiUser) => {
+        localStorage.setItem(USER_KEY, JSON.stringify(u));
+        setUser(u);
+    }, []);
+
     const logout = useCallback(() => {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
@@ -98,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return (
         <AuthContext.Provider
-            value={{ user, token, isLoading, login, register, loginWithGoogle, logout }}
+            value={{ user, token, isLoading, login, register, loginWithGoogle, logout, updateUser }}
         >
             {children}
         </AuthContext.Provider>

@@ -71,7 +71,7 @@ export const SettingsPage: React.FC = () => {
                 <section className="mt-2">
                     <h3 className="text-slate-500 dark:text-primary/60 text-xs font-bold uppercase tracking-widest px-6 pb-2">Account</h3>
                     <div className="flex flex-col px-4">
-                        <SettingsRow icon="person" label="Personal Information" />
+                        <SettingsRow icon="person" label="Personal Information" onClick={() => navigate('/profile')} />
                         <SettingsRow icon="notifications" label="Notifications" />
                         <SettingsRow
                             icon="tune"
