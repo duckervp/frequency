@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import TimePicker from '../components/TimePicker';
 import ErrorState from '../components/ErrorState';
 import { ApiError, errorMessage, logsApi, type ApiLog } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useGoBack } from '../hooks/useGoBack';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import { formatLogDay, withLocalTime } from '../lib/time';
 import PageLayout from '../components/PageLayout';
@@ -21,7 +22,7 @@ function parseISOToTimePicker(iso: string): { hour: number; minute: number; peri
 
 export const EditActionPage: React.FC = () => {
     useRequireAuth();
-    const navigate = useNavigate();
+    const goBack = useGoBack('/dashboard');
     const [searchParams] = useSearchParams();
     const logId = searchParams.get('logId');
 
@@ -42,7 +43,7 @@ export const EditActionPage: React.FC = () => {
         if (!logId || !window.confirm('Delete this log entry?')) return;
         remove.run(async () => {
             await logsApi.remove(logId);
-            navigate('/dashboard');
+            goBack();
         });
     };
 
@@ -51,7 +52,7 @@ export const EditActionPage: React.FC = () => {
             header={
                 <TopBar
                     title="Edit Action Log"
-                    left={<TopBarButton icon="close" label="Close" onClick={() => navigate(-1)} />}
+                    left={<TopBarButton icon="close" label="Close" onClick={goBack} />}
                     right={entry.data && (
                         <TopBarButton
                             icon="delete"
@@ -89,7 +90,7 @@ export const EditActionPage: React.FC = () => {
 
 /** The form starts from the loaded log, so it never shows placeholder values while loading */
 const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
-    const navigate = useNavigate();
+    const goBack = useGoBack('/dashboard');
     const initial = parseISOToTimePicker(entry.log.loggedAt);
     const [note, setNote] = useState(entry.log.note ?? '');
     const [hour, setHour] = useState(initial.hour);
@@ -111,7 +112,7 @@ const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
                 loggedAt: loggedAt.toISOString(),
                 note,
             });
-            navigate(-1);
+            goBack();
         } catch (err) {
             setError(errorMessage(err));
         } finally {
@@ -192,7 +193,7 @@ const EditLogForm: React.FC<{ entry: ApiLog }> = ({ entry }) => {
                     {saving ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
-                    onClick={() => navigate(-1)}
+                    onClick={goBack}
                     className="w-full h-12 bg-transparent text-slate-500 dark:text-slate-400 font-medium text-sm rounded-xl flex items-center justify-center hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
                 >
                     Cancel and Discard

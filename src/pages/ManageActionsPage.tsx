@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { actionsApi } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useGoBack } from '../hooks/useGoBack';
 import { useAsyncAction, useLoad } from '../hooks/useLoad';
 import BottomNav from '../components/BottomNav';
 import ErrorState from '../components/ErrorState';
@@ -12,6 +13,7 @@ import { actionIcon } from '../lib/icons';
 export const ManageActionsPage: React.FC = () => {
     useRequireAuth();
     const navigate = useNavigate();
+    const goBack = useGoBack('/settings');
     const list = useLoad(actionsApi.list);
     const remove = useAsyncAction();
     const [search, setSearch] = useState('');
@@ -37,7 +39,7 @@ export const ManageActionsPage: React.FC = () => {
             header={
                 <TopBar
                     title="Manage Actions"
-                    left={<TopBarButton icon="arrow_back_ios_new" label="Back" onClick={() => navigate('/settings')} />}
+                    left={<TopBarButton icon="arrow_back_ios_new" label="Back" onClick={goBack} />}
                     right={
                         <TopBarButton
                             icon="add"

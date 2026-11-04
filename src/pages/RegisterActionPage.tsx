@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import TimePicker from '../components/TimePicker';
 import ErrorState from '../components/ErrorState';
 import { actionsApi, errorMessage, logsApi, renameNotFound, type ApiAction } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useGoBack } from '../hooks/useGoBack';
 import { useLoad } from '../hooks/useLoad';
 import { pickedTimeToISO } from '../lib/time';
 import PageLayout from '../components/PageLayout';
@@ -11,7 +12,7 @@ import TopBar, { TopBarButton } from '../components/TopBar';
 
 export const RegisterActionPage: React.FC = () => {
     useRequireAuth();
-    const navigate = useNavigate();
+    const goBack = useGoBack('/dashboard');
     const [searchParams] = useSearchParams();
     const actionId = searchParams.get('actionId');
 
@@ -47,7 +48,7 @@ export const RegisterActionPage: React.FC = () => {
                 loggedAt: pickedTimeToISO(hour, minute, period),
                 note: notes,
             });
-            navigate('/dashboard');
+            goBack();
         } catch (err) {
             setError(errorMessage(err));
         } finally {
@@ -60,7 +61,7 @@ export const RegisterActionPage: React.FC = () => {
             header={
                 <TopBar
                     title="Register Action"
-                    left={<TopBarButton icon="close" label="Close" onClick={() => navigate(-1)} />}
+                    left={<TopBarButton icon="close" label="Close" onClick={goBack} />}
                     right={<TopBarButton icon="check_circle" label="Save" onClick={handleSave} disabled={!canSave} className="text-primary" />}
                 />
             }

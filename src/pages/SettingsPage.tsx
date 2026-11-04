@@ -4,6 +4,7 @@ import BottomNav from '../components/BottomNav';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 import { useAuth, useRequireAuth } from '../hooks/useAuth';
+import { useGoBack } from '../hooks/useGoBack';
 
 interface SettingsRowProps {
     icon: string;
@@ -31,6 +32,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({ icon, label, badge, onClick }
 export const SettingsPage: React.FC = () => {
     useRequireAuth();
     const navigate = useNavigate();
+    const goBack = useGoBack('/dashboard');
     const { user, logout } = useAuth();
 
     return (
@@ -38,7 +40,7 @@ export const SettingsPage: React.FC = () => {
             header={
                 <TopBar
                     title="Settings"
-                    left={<TopBarButton icon="arrow_back_ios_new" label="Back" onClick={() => navigate(-1)} />}
+                    left={<TopBarButton icon="arrow_back_ios_new" label="Back" onClick={goBack} />}
                 />
             }
         >

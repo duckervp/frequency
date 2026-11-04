@@ -47,6 +47,9 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [ ] Mobile `api.ts` falls back to port 3000; local BE runs on 3001 (always set `EXPO_PUBLIC_API_URL`)
 - [x] API types were duplicated by hand in web and mobile. The contract now lives in `frequency-be/src/api-types.ts` (checked against the schema at compile time); web uses a generated copy (`npm run sync:api-types`, checked in CI)
 - [ ] Mobile: replace the hand-written types in `src/lib/api.ts` with the same generated copy of the BE contract when syncing
+- [x] Pages with several entry points hard-coded where Back or Save went: New Action opened from the dashboard landed on Manage Actions after Done, and Manage Actions Back always went to Settings (also from the dashboard's "Edit Grid"); deleting a log opened from Log or Calendar went to the dashboard. Back, Close, Save and Delete now return to the opener through `useGoBack(fallback)`, which uses the fallback route when the page was opened directly (a new tab used to leave the app). A save that finishes after the user already pressed Close no longer goes back a second time. `e2e/action-navigation.spec.ts`
+- [ ] Mobile (suspected, not run on a device): create/register/edit call `router.back()` to a screen that is still mounted and loaded once in `useEffect`, so Manage Actions and Dashboard may show stale lists after a save - use `useFocusEffect` when syncing. `(tabs)/settings.tsx` Back does nothing when the tab is opened first
+- [ ] Web Calendar keeps the selected day, month and filter in component state, so returning from editing a log lands on today's view
 
 ---
 

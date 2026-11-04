@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { actionsApi, errorMessage, renameNotFound, type ApiAction } from '../lib/api';
 import { useRequireAuth } from '../hooks/useAuth';
+import { useGoBack } from '../hooks/useGoBack';
 import { useLoad } from '../hooks/useLoad';
 import { ACTION_ICONS } from '../lib/icons';
 import ErrorState from '../components/ErrorState';
@@ -15,7 +16,7 @@ const COLORS = [
 
 export const CreateActionPage: React.FC = () => {
     useRequireAuth();
-    const navigate = useNavigate();
+    const goBack = useGoBack('/manage-actions');
     const [searchParams] = useSearchParams();
     const editId = searchParams.get('edit');
 
@@ -39,7 +40,7 @@ export const CreateActionPage: React.FC = () => {
             header={
                 <TopBar
                     title={editId ? 'Edit Action' : 'New Action'}
-                    left={<TopBarButton icon="close" label="Close" onClick={() => navigate(-1)} />}
+                    left={<TopBarButton icon="close" label="Close" onClick={goBack} />}
                 />
             }
         >
@@ -74,7 +75,7 @@ interface ActionFormProps {
 }
 
 const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
-    const navigate = useNavigate();
+    const goBack = useGoBack('/manage-actions');
     const [actionName, setActionName] = useState(initial?.name ?? preset.name);
     const [selectedIcon, setSelectedIcon] = useState(initial?.icon ?? preset.icon ?? 'book');
     const [selectedColor, setSelectedColor] = useState(initial?.color ?? 'bg-primary');
@@ -101,7 +102,7 @@ const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
             } else {
                 await actionsApi.create(payload);
             }
-            navigate('/manage-actions');
+            goBack();
         } catch (err) {
             setError(errorMessage(err));
         } finally {
@@ -114,7 +115,7 @@ const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
             header={
                 <TopBar
                     title={editId ? 'Edit Action' : 'New Action'}
-                    left={<TopBarButton icon="close" label="Close" onClick={() => navigate(-1)} />}
+                    left={<TopBarButton icon="close" label="Close" onClick={goBack} />}
                     right={
                         <button
                             type="button"
