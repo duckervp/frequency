@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 import { useAuth, useRequireAuth } from '../hooks/useAuth';
 import { useGoBack } from '../hooks/useGoBack';
+import { enableNotifications, notificationState, type NotificationState } from '../lib/notifications';
+
+const NOTIFICATION_BADGE: Record<NotificationState, string> = {
+    on: 'On',
+    off: 'Off',
+    blocked: 'Blocked in browser settings',
+    unsupported: 'Not supported here',
+};
 
 interface SettingsRowProps {
     icon: string;
@@ -32,6 +40,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({ icon, label, badge, onClick }
 export const SettingsPage: React.FC = () => {
     useRequireAuth();
     const navigate = useNavigate();
+    const [notifications, setNotifications] = useState<NotificationState>(notificationState);
     const goBack = useGoBack('/dashboard');
     const { user, logout } = useAuth();
 
@@ -72,7 +81,14 @@ export const SettingsPage: React.FC = () => {
                     <h3 className="text-slate-500 dark:text-primary/60 text-xs font-bold uppercase tracking-widest px-6 pb-2">Account</h3>
                     <div className="flex flex-col px-4">
                         <SettingsRow icon="person" label="Personal Information" onClick={() => navigate('/profile')} />
-                        <SettingsRow icon="notifications" label="Notifications" />
+                        <SettingsRow
+                            icon="notifications"
+                            label="Notifications"
+                            badge={NOTIFICATION_BADGE[notifications]}
+                            onClick={notifications === 'off'
+                                ? () => enableNotifications().catch(notificationState).then(setNotifications)
+                                : undefined}
+                        />
                         <SettingsRow
                             icon="tune"
                             label="Manage My Actions"

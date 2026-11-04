@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthProvider from './components/AuthProvider';
+import ReminderScheduler from './components/ReminderScheduler';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import LogPage from './pages/LogPage';
@@ -15,6 +16,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <ReminderScheduler />
         <div className="dark">
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />

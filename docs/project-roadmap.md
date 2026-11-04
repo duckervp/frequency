@@ -40,7 +40,8 @@ New features are built on `frequency-be` + `frequency` (web) first, then synced 
 - [x] The web Calendar kept the day and month it was opened on past local midnight (selected day, today highlight, streak). It now follows `useToday()` until the user picks a day or month; a pick survives the end of the month. `e2e/calendar-midnight.spec.ts`
 - [x] Product fixes: the action color is shown wherever an action appears (`ActionIcon` + `lib/colors.ts`, which also covers the mobile colors); the dashboard shows every action and its search matches actions as well as logs; the Calendar stops at the current month; the misleading "Encrypted" and "synced across your devices" text and the dead "..." buttons are gone. `e2e/product-fixes.spec.ts`
 - [x] Product decision: the streak no longer drops to 0 just because nothing is logged yet today. A run stays alive until today ends (counts back from yesterday) and only ends after a whole missed day (`GET /logs/streak`, BE `test/streak.test.ts`)
-- [x] Settings > Personal Information opens `/profile`: change the display name and the password (`PUT /auth/me`, `PUT /auth/password`; a Google-only account can set a first password). `e2e/profile.spec.ts`, BE `test/profile.test.ts`
+- [x] Settings > Personal Information opens `/profile`: change the display name and the password (`PUT /auth/me`, `PUT /auth/password`; a Google-only account can set a first password, only within 15 minutes of signing in). `e2e/profile.spec.ts`, BE `test/profile.test.ts`
+- [ ] Changing the password does not sign out other sessions: JWTs are stateless (needs a token version or `passwordChangedAt` column, so a migration)
 - [ ] Mobile: Personal Information screen (same BE routes) when syncing
 - [x] Web lint had 2 `react-refresh/only-export-components` errors: `AuthProvider` now lives in `src/components/AuthProvider.tsx`, the context and hooks in `src/hooks/useAuth.ts`; lint is clean
 - [x] BE had no migration history (DB created with `db:push`). Migrations now live in `frequency-be/src/db/migrations/` (`0000_baseline`), `test/migrations.test.ts` fails if they drift from the schema, and production is baselined with `npm run db:baseline` (runbook `docs/runbooks/2026-11-04-migration-baseline.md`)
@@ -87,9 +88,10 @@ When a web feature is finished, add a sync item here and port it to mobile.
 ## Backlog
 
 ### Reminders / Notifications
-- Web: browser notifications at user-set `reminderTime`
+- Done (web): browser notifications at `reminderTime` while a tab of the app is open (`ReminderScheduler`, `public/sw.js`, Settings > Notifications). One per action per day across tabs, skipped when already logged. `e2e/reminders.spec.ts` (notification APIs faked; the real click and display were not tested in a browser)
+- iPhone: needs a web app manifest (`display: standalone`) and Add to Home Screen before iOS exposes notifications
+- Reminders with no tab open need Web Push: VAPID keys, a subscriptions table (migration + runbook) and a Vercel cron
 - Mobile: `expo-notifications`
-- Backend could trigger via cron or scheduled push
 
 ### Developer Experience
 - Share API types between web and mobile instead of copying

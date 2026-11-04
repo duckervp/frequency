@@ -9,6 +9,7 @@ import ErrorState from '../components/ErrorState';
 import PageLayout from '../components/PageLayout';
 import TopBar, { TopBarButton } from '../components/TopBar';
 import { ACTION_COLORS } from '../lib/colors';
+import { notificationState } from '../lib/notifications';
 
 
 export const CreateActionPage: React.FC = () => {
@@ -76,7 +77,7 @@ const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
     const [actionName, setActionName] = useState(initial?.name ?? preset.name);
     const [selectedIcon, setSelectedIcon] = useState(initial?.icon ?? preset.icon ?? 'book');
     const [selectedColor, setSelectedColor] = useState(initial?.color ?? 'bg-primary');
-    const [remindersEnabled, setRemindersEnabled] = useState(initial?.remindersEnabled ?? true);
+    const [remindersEnabled, setRemindersEnabled] = useState(initial?.remindersEnabled ?? false);
     const [reminderTime, setReminderTime] = useState(initial?.reminderTime ?? '08:00');
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
@@ -209,6 +210,11 @@ const ActionForm: React.FC<ActionFormProps> = ({ editId, initial, preset }) => {
                                 />
                             </div>
                         </div>
+                        {remindersEnabled && notificationState() !== 'on' && (
+                            <p className="px-1 text-xs text-slate-500 dark:text-slate-400">
+                                Turn on Notifications in Settings to get this reminder. Reminders arrive while the app is open in a tab.
+                            </p>
+                        )}
                     </section>
                 </div>
             </div>
